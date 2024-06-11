@@ -1,4 +1,4 @@
-package com.rejowan.numberconverter
+package com.rejowan.numberconverter.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
