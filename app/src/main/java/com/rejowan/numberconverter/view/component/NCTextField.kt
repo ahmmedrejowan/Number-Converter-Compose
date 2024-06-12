@@ -29,14 +29,16 @@ import androidx.compose.ui.unit.dp
 fun NCTextField(
     onBaseSelected: (String) -> Unit = {},
     onInputValueChange: (String) -> Unit = {},
-    input: String = ""
+    input: String = "",
+    base: String = "",
+    readOnly: Boolean = false,
 ) {
 
 
     var mExpanded by remember { mutableStateOf(false) }
     val baseList = listOf("Bin", "Oct", "Dec", "Hex")
-    var selectedBase by remember { mutableStateOf(baseList[0]) }
-    var inputValue by remember { mutableStateOf(input) }
+    var selectedBase by remember { mutableStateOf(base) }
+   // var inputValue by remember { mutableStateOf(input) }
 
     val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
     else Icons.Filled.KeyboardArrowDown
@@ -85,15 +87,18 @@ fun NCTextField(
 
         }
 
-        OutlinedTextField(value = inputValue,
+        val mLabel = if (readOnly) "Result" else "Enter $selectedBase value"
+
+        OutlinedTextField(value = input,
             onValueChange = {
-                inputValue = it
+               // inputValue = it
                 onInputValueChange(it)
             },
+            readOnly = readOnly,
             modifier = Modifier
                 .padding(5.dp)
                 .weight(4f),
-            label = { Text("Enter $selectedBase value") }
+            label = { Text(mLabel) }
 
         )
 
