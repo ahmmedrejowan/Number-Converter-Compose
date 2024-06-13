@@ -1,10 +1,12 @@
 package com.rejowan.numberconverter.view.component
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -21,9 +23,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rejowan.numberconverter.utils.baseNameToValue
 
 @Composable
 fun NCTextField(
@@ -31,34 +35,50 @@ fun NCTextField(
     onInputValueChange: (String) -> Unit = {},
     input: String = "",
     base: String = "",
+    dropHint: String = "",
     readOnly: Boolean = false,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
 
+    Log.e("NCTextField", "selectedBase1: $base")
 
     var mExpanded by remember { mutableStateOf(false) }
     val baseList = listOf("Bin", "Oct", "Dec", "Hex")
-    var selectedBase by remember { mutableStateOf(base) }
-   // var inputValue by remember { mutableStateOf(input) }
+    var selectedBase = base
+    var isValid by remember { mutableStateOf(true) }
+
+
+    Log.e("NCTextField", "selectedBase2: $selectedBase")
 
     val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
     else Icons.Filled.KeyboardArrowDown
+
+
+    fun validateInput(input: String, base: String): Boolean {
+        val baseValue = baseNameToValue(base)
+        return input.uppercase().replace(".","").all {
+            val digitValue = when (it) {
+                in '0'..'9' -> it - '0'
+                in 'A'..'F' -> it - 'A' + 10
+                else -> -1
+            }
+            digitValue in 0 until baseValue
+        }
+    }
 
     Row(Modifier.fillMaxWidth()) {
 
         Column(
             Modifier
                 .padding(5.dp)
-                .weight(1.6f)
+                .weight(2f)
         ) {
 
             OutlinedTextField(value = selectedBase,
                 readOnly = true,
-                onValueChange = {
-                    selectedBase = it
-                    onBaseSelected(it)
-                },
+                onValueChange = { },
                 modifier = Modifier.clickable { mExpanded = !mExpanded },
-                label = { Text("Base") },
+                label = { Text(dropHint) },
                 trailingIcon = {
                     Icon(icon, "", Modifier.clickable { mExpanded = !mExpanded })
                 })
@@ -87,18 +107,27 @@ fun NCTextField(
 
         }
 
-        val mLabel = if (readOnly) "Result" else "Enter $selectedBase value"
+        val mLabel = if (readOnly) "Result in $selectedBase" else "Enter $selectedBase value"
 
         OutlinedTextField(value = input,
             onValueChange = {
-               // inputValue = it
+                isValid = validateInput(it, selectedBase)
                 onInputValueChange(it)
             },
             readOnly = readOnly,
             modifier = Modifier
                 .padding(5.dp)
                 .weight(4f),
-            label = { Text(mLabel) }
+            label = { Text(text = if (isValid) mLabel else "Invalid Input, $selectedBase Only") },
+            isError = !isValid,
+            trailingIcon = trailingIcon,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = if (selectedBase == "Hex") {
+                    KeyboardType.Text
+                } else {
+                    KeyboardType.Number
+                }
+            )
 
         )
 
