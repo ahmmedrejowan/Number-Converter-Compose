@@ -118,7 +118,7 @@ class MainActivity : ComponentActivity() {
                        modifier = Modifier.padding(2.dp).fillMaxWidth(),
                        textAlign = TextAlign.Center)
 
-                   Spacer(modifier = Modifier.height(5.dp))
+                   Spacer(modifier = Modifier.height(10.dp))
 
                }
 
