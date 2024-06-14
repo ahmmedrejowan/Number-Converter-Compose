@@ -1,6 +1,5 @@
 package com.rejowan.numberconverter.view.component
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +22,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,18 +38,17 @@ fun NCTextField(
     base: String = "",
     dropHint: String = "",
     readOnly: Boolean = false,
+    focusRequester: FocusRequester = FocusRequester(),
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
 
-    Log.e("NCTextField", "selectedBase1: $base")
 
     var mExpanded by remember { mutableStateOf(false) }
     val baseList = listOf("Bin", "Oct", "Dec", "Hex")
     var selectedBase = base
     var isValid by remember { mutableStateOf(true) }
+    var mInput by remember { mutableStateOf(input) }
 
-
-    Log.e("NCTextField", "selectedBase2: $selectedBase")
 
     val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
     else Icons.Filled.KeyboardArrowDown
@@ -56,7 +56,7 @@ fun NCTextField(
 
     fun validateInput(input: String, base: String): Boolean {
         val baseValue = baseNameToValue(base)
-        return input.uppercase().replace(".","").all {
+        return input.uppercase().replace(".", "").all {
             val digitValue = when (it) {
                 in '0'..'9' -> it - '0'
                 in 'A'..'F' -> it - 'A' + 10
@@ -76,7 +76,7 @@ fun NCTextField(
 
             OutlinedTextField(value = selectedBase,
                 readOnly = true,
-                onValueChange = { },
+                onValueChange = { isValid = validateInput(mInput, selectedBase) },
                 modifier = Modifier.clickable { mExpanded = !mExpanded },
                 label = { Text(dropHint) },
                 trailingIcon = {
@@ -98,6 +98,7 @@ fun NCTextField(
                             selectedBase = it
                             mExpanded = false
                             onBaseSelected(it)
+                           isValid = validateInput(mInput, selectedBase)
                         },
                         colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.onSurface)
                     )
@@ -109,15 +110,19 @@ fun NCTextField(
 
         val mLabel = if (readOnly) "Result in $selectedBase" else "Enter $selectedBase value"
 
-        OutlinedTextField(value = input,
+        OutlinedTextField(
+            value = input,
             onValueChange = {
                 isValid = validateInput(it, selectedBase)
                 onInputValueChange(it)
+                mInput = it
             },
             readOnly = readOnly,
+
             modifier = Modifier
                 .padding(5.dp)
-                .weight(4f),
+                .weight(4f)
+                .focusRequester(focusRequester = focusRequester),
             label = { Text(text = if (isValid) mLabel else "Invalid Input, $selectedBase Only") },
             isError = !isValid,
             trailingIcon = trailingIcon,

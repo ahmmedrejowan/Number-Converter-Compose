@@ -36,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -76,6 +78,8 @@ class MainActivity : ComponentActivity() {
         val clipboardManager =
             context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
+        val focusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
 
         var inputValue by remember {
             mutableStateOf("")
@@ -135,6 +139,7 @@ class MainActivity : ComponentActivity() {
                     input = inputValue,
                     base = inputBase,
                     dropHint = "Input",
+                    focusRequester = focusRequester,
                     trailingIcon = {
                         if (inputValue.isNotEmpty()) {
                             Icon(Icons.Filled.Clear, "", Modifier.clickable {
@@ -164,6 +169,8 @@ class MainActivity : ComponentActivity() {
                             outputBase = temp
 
                             inputValue = if (inputValue.isNotEmpty()) output ?: "" else ""
+
+                            focusManager.clearFocus()
 
                         }, contentAlignment = Alignment.Center) {
                         Icon(
