@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +50,6 @@ import com.rejowan.numberconverter.utils.baseNameToValue
 import com.rejowan.numberconverter.view.component.NCTextField
 import com.rejowan.numberconverter.viewmodel.ConverterViewModel
 import org.koin.androidx.compose.koinViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.KoinApplication
 
 
@@ -72,7 +70,55 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun ShowHomeContent(viewModel: ConverterViewModel = koinViewModel()) {
+    fun ShowHomeContent() {
+
+        Scaffold(modifier = Modifier.fillMaxSize(),
+
+            topBar = {
+
+                Column(Modifier.fillMaxWidth()) {
+                    Spacer(modifier = Modifier.height(15.dp))
+
+                    Text(
+                        text = "Number Converter",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 20.sp,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = "Convert between bases with ease!",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                }
+
+            }
+
+        ) { innerPadding ->
+
+            Column(modifier = Modifier.padding(innerPadding)) {
+
+
+                ConverterUI()
+
+
+            }
+
+        }
+
+    }
+
+    @Composable
+    fun ConverterUI(viewModel: ConverterViewModel = koinViewModel()) {
 
         val context = LocalContext.current
         val clipboardManager =
@@ -103,61 +149,36 @@ class MainActivity : ComponentActivity() {
         }
 
 
-        Scaffold(modifier = Modifier.fillMaxSize(),
 
-            topBar = {
+        Column {
 
-               Column (Modifier.fillMaxWidth()) {
-                   Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-                   Text(text = "Number Converter",
-                       style = MaterialTheme.typography.titleMedium,
-                       fontSize = 20.sp,
-                       modifier = Modifier.fillMaxWidth(),
-                       textAlign = TextAlign.Center)
+            NCTextField(onBaseSelected = { inputBase = it },
+                onInputValueChange = { inputValue = it },
+                input = inputValue,
+                base = inputBase,
+                dropHint = "Input",
+                focusRequester = focusRequester,
+                trailingIcon = {
+                    if (inputValue.isNotEmpty()) {
+                        Icon(Icons.Filled.Clear, "", Modifier.clickable {
+                            inputValue = ""
+                        })
+                    }
+                })
 
-                   Text(text = "Convert between bases with ease!",
-                       style = MaterialTheme.typography.bodyMedium,
-                       fontSize = 14.sp,
-                       modifier = Modifier.padding(2.dp).fillMaxWidth(),
-                       textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.height(5.dp))
 
-                   Spacer(modifier = Modifier.height(10.dp))
-
-               }
-
-            }
-
-        ) { innerPadding ->
-
-            Column(modifier = Modifier.padding(innerPadding)) {
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                NCTextField(onBaseSelected = { inputBase = it },
-                    onInputValueChange = { inputValue = it },
-                    input = inputValue,
-                    base = inputBase,
-                    dropHint = "Input",
-                    focusRequester = focusRequester,
-                    trailingIcon = {
-                        if (inputValue.isNotEmpty()) {
-                            Icon(Icons.Filled.Clear, "", Modifier.clickable {
-                                inputValue = ""
-                            })
-                        }
-                    })
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
 
 
-                    Box(modifier = Modifier
+                Box(
+                    modifier = Modifier
                         .padding(5.dp)
                         .size(40.dp)
                         .background(
@@ -172,47 +193,44 @@ class MainActivity : ComponentActivity() {
 
                             focusManager.clearFocus()
 
-                        }, contentAlignment = Alignment.Center) {
-                        Icon(
-                            painterResource(id = R.drawable.ic_swap), contentDescription = ""
-                        )
-                    }
-
-
+                        }, contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painterResource(id = R.drawable.ic_swap), contentDescription = ""
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-
-                NCTextField(onBaseSelected = { outputBase = it },
-                    input = if (inputValue.isEmpty()) "" else output ?: "",
-                    base = outputBase,
-                    readOnly = true,
-                    dropHint = "Output",
-                    trailingIcon = {
-                        if (output.toString().isNotEmpty() && inputValue.isNotEmpty()) {
-                            Icon(painterResource(id = R.drawable.ic_copy),
-                                contentDescription = "",
-                                Modifier.clickable {
-                                    val clip = ClipData.newPlainText("Copied Text", output)
-                                    clipboardManager.setPrimaryClip(clip)
-                                    Toast.makeText(
-                                        context, "Copied to Clipboard", Toast.LENGTH_SHORT
-                                    ).show()
-
-                                })
-                        }
-                    }
-
-                )
 
 
             }
 
+            Spacer(modifier = Modifier.height(5.dp))
+
+
+            NCTextField(onBaseSelected = { outputBase = it },
+                input = if (inputValue.isEmpty()) "" else output ?: "",
+                base = outputBase,
+                readOnly = true,
+                dropHint = "Output",
+                trailingIcon = {
+                    if (output.toString().isNotEmpty() && inputValue.isNotEmpty()) {
+                        Icon(painterResource(id = R.drawable.ic_copy),
+                            contentDescription = "",
+                            Modifier.clickable {
+                                val clip = ClipData.newPlainText("Copied Text", output)
+                                clipboardManager.setPrimaryClip(clip)
+                                Toast.makeText(
+                                    context, "Copied to Clipboard", Toast.LENGTH_SHORT
+                                ).show()
+
+                            })
+                    }
+                }
+
+            )
+
         }
 
     }
-
 
     @Preview(showBackground = true)
     @Composable

@@ -13,10 +13,10 @@ fun baseNameToValue(baseName: String): Int {
 
 fun getErrorMessage(base: String): String {
     return when(base){
-        "Bin" -> "Invalid, Only 0 and 1"
-        "Oct" -> "Invalid, Only 0 to 7"
-        "Dec" -> "Invalid, Only 0 to 9"
-        "Hex" -> "Invalid, Only 0 to 9 and A to F"
-        else -> "Invalid, Only 0 to 9"
+        "Bin" -> "Invalid, Allowed 0 and 1"
+        "Oct" -> "Invalid, Allowed 0 - 7"
+        "Dec" -> "Invalid, Allowed 0 - 9"
+        "Hex" -> "Invalid, Allowed 0 - 9 and A - F"
+        else -> "Invalid, Allowed 0 - 9"
     }
 }

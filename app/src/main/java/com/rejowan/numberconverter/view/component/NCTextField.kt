@@ -138,7 +138,6 @@ fun NCTextField(
                 mInput = it
             },
             readOnly = readOnly,
-
             modifier = Modifier
                 .padding(5.dp)
                 .weight(4f)

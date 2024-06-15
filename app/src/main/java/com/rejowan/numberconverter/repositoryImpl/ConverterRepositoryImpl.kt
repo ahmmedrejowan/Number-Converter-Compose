@@ -1,20 +1,52 @@
 package com.rejowan.numberconverter.repositoryImpl
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.rejowan.numberconverter.repository.ConverterRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.MathContext
 
-class ConverterRepositoryImpl : ConverterRepository {
 
-    override fun convert(input: String, fromBase: Int, toBase: Int): String? {
-        try {
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "decimal_pref")
+
+class ConverterRepositoryImpl(context: Context) : ConverterRepository {
+
+    private val dataStore: DataStore<Preferences> = context.dataStore
+
+    companion object {
+        val DECIMAL_PLACES_KEY = intPreferencesKey("decimal_places")
+    }
+
+
+    override suspend fun convert(input: String, fromBase: Int, toBase: Int): String? {
+        return try {
             val parsedValue = toBaseTen(input, fromBase)
-            return toBase(parsedValue.first, parsedValue.second, toBase)
-
+            val decimalPlaces = getDecimalPlaces()
+            toBase(parsedValue.first, parsedValue.second, toBase, decimalPlaces)
         } catch (e: Throwable) {
-            return null
+            null
         }
+    }
+
+    override suspend fun setDecimalPlaces(decimalPlaces: Int) {
+        dataStore.edit { settings ->
+            settings[DECIMAL_PLACES_KEY] = decimalPlaces
+        }
+    }
+
+    override suspend fun getDecimalPlaces(): Int {
+        val decimalPlacesFlow: Flow<Int> = dataStore.data.map { preferences ->
+            preferences[DECIMAL_PLACES_KEY] ?: 15
+        }
+        return decimalPlacesFlow.first()
     }
 
     private fun toBaseTen(input: String, fromBase: Int): Pair<BigInteger, BigDecimal?> {
@@ -56,17 +88,21 @@ class ConverterRepositoryImpl : ConverterRepository {
     }
 
 
-    private fun toBase(intPart: BigInteger, decimalPart: BigDecimal?, toBase: Int): String {
+    private fun toBase(
+        intPart: BigInteger, decimalPart: BigDecimal?, toBase: Int, decimalPlaces: Int
+    ): String {
         val integerPart = convertIntegerToBase(intPart, toBase)
-        val fractionPart = decimalPart?.let { convertFractionToBase(it, toBase) }
+        val fractionPart = decimalPart?.let { convertFractionToBase(it, toBase, decimalPlaces) }
         return fractionPart?.let { "$integerPart.$fractionPart" } ?: integerPart
     }
 
-    private fun convertFractionToBase(fraction: BigDecimal, radix: Int): String {
+    private fun convertFractionToBase(
+        fraction: BigDecimal, radix: Int, decimalPlaces: Int
+    ): String {
         var fraction1 = fraction
         var result = ""
         val base = BigDecimal(radix)
-        for (i in 0 until 10) {
+        for (i in 0 until decimalPlaces) {
             fraction1 = fraction1.multiply(base)
             val x = fraction1.toBigInteger()
             var c = ('0'.code + x.toInt()).toChar()

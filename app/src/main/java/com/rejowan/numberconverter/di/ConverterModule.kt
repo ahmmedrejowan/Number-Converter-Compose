@@ -8,6 +8,6 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val converterModule = module {
-    single<ConverterRepository> { ConverterRepositoryImpl() }
+    single<ConverterRepository> { ConverterRepositoryImpl(androidContext()) }
     viewModel { ConverterViewModel(get())}
 }
