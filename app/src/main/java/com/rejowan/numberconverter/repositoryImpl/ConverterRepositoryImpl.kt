@@ -2,12 +2,12 @@ package com.rejowan.numberconverter.repositoryImpl
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.BaselineShift.Companion.Superscript
-import androidx.compose.ui.text.substring
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
@@ -47,26 +47,27 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         }
     }
 
-    override suspend fun explain(input: String, fromBase: Int, toBase: Int): AnnotatedString {
+    override suspend fun explain(input: String, fromBase: Int, toBase: Int):
+    Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
 
         when (fromBase) {
             2 -> {
                 when (toBase) {
-                    2 -> {
-                        return AnnotatedString("The number is already in base 2")
-                    }
+//                    2 -> {
+//                        return
+//                    }
 
-                    8 -> {
-                        return AnnotatedString("First convert the number to base 10, then convert it to base 8")
-                    }
+//                    8 -> {
+//                        return AnnotatedString("First convert the number to base 10, then convert it to base 8")
+//                    }
 
                     10 -> {
                         return binToDecimal(input)
                     }
 
-                    16 -> {
-                        return AnnotatedString("First convert the number to base 10, then convert it to base 16")
-                    }
+//                    16 -> {
+//                        return AnnotatedString("First convert the number to base 10, then convert it to base 16")
+//                    }
                 }
 
             }
@@ -77,13 +78,16 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
 
 
-        return AnnotatedString("")
+        return Triple(AnnotatedString(""), null, AnnotatedString(""))
     }
 
-    private fun binToDecimal(input: String): AnnotatedString {
+    private fun binToDecimal(input: String):
+            Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
 
         var decimalIntegral = 0
-        var decimalFractional = 0.0
+        var decimalFractional = BigDecimal.ZERO
+
+     //   var decimalFractional = 0.0
 
         val parts = input.uppercase().split(".")
         val integralPart = parts[0]
@@ -118,13 +122,37 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
         }
 
+//        if (fractionalPart.isNotEmpty()) {
+//            fractionalPart.forEachIndexed { index, c ->
+//                val bit = c.toString().toInt()
+//                val position = -index - 1
+//                val value = bit * 2.0.pow(position)
+//
+//                decimalFractional += value
+//
+//                if (index != 0) {
+//                    fractionalAnnPart1.append(" + ")
+//                    fractionalAnnPart2.append(" + ")
+//                }
+//
+//                fractionalAnnPart1.append("($bit x 2")
+//                fractionalAnnPart1.appendSuperscript("$position)")
+//
+//                fractionalAnnPart2.append("$value")
+//            }
+//        }
+
         if (fractionalPart.isNotEmpty()) {
+            val base = BigDecimal(2)
+            val mc = MathContext.DECIMAL128
+
             fractionalPart.forEachIndexed { index, c ->
                 val bit = c.toString().toInt()
                 val position = -index - 1
-                val value = bit * 2.0.pow(position)
+                val exponent = base.pow(position, mc)
+                val value = BigDecimal(bit).multiply(exponent, mc)
 
-                decimalFractional += value
+                decimalFractional = decimalFractional.add(value, mc)
 
                 if (index != 0) {
                     fractionalAnnPart1.append(" + ")
@@ -139,49 +167,40 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         }
 
 
-        integralAnnotatedString.appendBold("Integral Part\n\n")
-        integralAnnotatedString.appendSemiBold(integralPart)
+        integralAnnotatedString.appendSubTitle(integralPart)
         integralAnnotatedString.appendSmall(" (Bin)\n= ")
         integralAnnotatedString.append(integralAnnPart1.toAnnotatedString())
         integralAnnotatedString.append("\n= ")
         integralAnnotatedString.append(integralAnnPart2.toAnnotatedString())
         integralAnnotatedString.append("\n= ")
-        integralAnnotatedString.appendSemiBold("$decimalIntegral")
+        integralAnnotatedString.appendSubTitle("$decimalIntegral")
         integralAnnotatedString.appendSmall(" (Dec)")
 
 
         if (fractionalPart.isNotEmpty()) {
-            fractionalAnnotatedString.appendBold("\n\n\nFractional Part\n\n0.")
-            fractionalAnnotatedString.appendSemiBold(fractionalPart)
+            fractionalAnnotatedString.appendSubTitle(fractionalPart)
             fractionalAnnotatedString.appendSmall(" (Bin)\n= ")
             fractionalAnnotatedString.append(fractionalAnnPart1.toAnnotatedString())
             fractionalAnnotatedString.append("\n= ")
             fractionalAnnotatedString.append(fractionalAnnPart2.toAnnotatedString())
             fractionalAnnotatedString.append("\n= ")
-            fractionalAnnotatedString.appendSemiBold("$decimalFractional")
+            fractionalAnnotatedString.appendSubTitle("$decimalFractional")
             fractionalAnnotatedString.appendSmall(" (Dec)")
         }
 
 
         val result = AnnotatedString.Builder()
-        result.append("\n\n\n")
-        result.appendBold("Result\n\n")
-        result.append(input)
+        result.appendSubTitle(input)
         result.appendSmall(" (Bin)\n= ")
-        result.append("$decimalIntegral")
+        result.appendSubTitle("$decimalIntegral")
         if (fractionalPart.isNotEmpty()) {
-            result.append(".")
-            result.append(decimalFractional.toString().substring(2))
+            result.appendSubTitle(".")
+            result.appendSubTitle(decimalFractional.toString().substring(2))
         }
         result.appendSmall(" (Dec)")
 
 
-        val finalAnnotatedString = AnnotatedString.Builder()
-        finalAnnotatedString.append(integralAnnotatedString.toAnnotatedString())
-        finalAnnotatedString.append(fractionalAnnotatedString.toAnnotatedString())
-        finalAnnotatedString.append(result.toAnnotatedString())
-
-        return finalAnnotatedString.toAnnotatedString()
+        return Triple(integralAnnotatedString.toAnnotatedString(), fractionalAnnotatedString.toAnnotatedString(), result.toAnnotatedString())
     }
 
 
@@ -190,30 +209,23 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             append(text)
         }
     }
-
     fun AnnotatedString.Builder.appendSubscript(text: String) {
         withStyle(style = SpanStyle(fontSize = 12.sp, baselineShift = BaselineShift.Subscript)) {
             append(text)
         }
     }
-
-    fun AnnotatedString.Builder.appendBold(text: String) {
-        withStyle(style = SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)) {
+    fun AnnotatedString.Builder.appendSubTitle(text: String) {
+        withStyle(style = SpanStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold)) {
             append(text)
         }
     }
-
     fun AnnotatedString.Builder.appendSmall(text: String) {
-        withStyle(style = SpanStyle(fontSize = 12.sp)) {
+        withStyle(style = SpanStyle(fontSize = 13.sp)) {
             append(text)
         }
     }
 
-    fun AnnotatedString.Builder.appendSemiBold(text: String) {
-        withStyle(style = SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold)) {
-            append(text)
-        }
-    }
+
 
 
     override suspend fun setDecimalPlaces(decimalPlaces: Int) {
@@ -262,7 +274,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
                 if (digitValue >= fromBase) throw Exception()
                 acc + BigDecimal.valueOf(digitValue.toLong()).multiply(
-                    BigDecimal.valueOf(fromBase.toDouble()).pow(-i - 1, MathContext.DECIMAL64)
+                    BigDecimal.valueOf(fromBase.toDouble()).pow(-i - 1, MathContext.DECIMAL128)
                 )
             }
         }

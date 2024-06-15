@@ -16,8 +16,8 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
     private val _decimalPlaces = MutableLiveData<Int>()
     val decimalPlaces: LiveData<Int> get() = _decimalPlaces
 
-    private val _explanation = MutableLiveData<AnnotatedString?>()
-    val explanation: LiveData<AnnotatedString?> get() = _explanation
+    private val _explanation = MutableLiveData<Triple<AnnotatedString, AnnotatedString?, AnnotatedString>>()
+    val explanation: LiveData<Triple<AnnotatedString, AnnotatedString?, AnnotatedString>> get() = _explanation
 
     init {
         viewModelScope.launch {
