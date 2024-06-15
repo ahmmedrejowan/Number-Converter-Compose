@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.BaselineShift.Companion.Superscript
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
@@ -56,17 +55,13 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 when (toBase) {
                     2 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     8 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
@@ -76,9 +71,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
                     16 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
                 }
@@ -89,33 +82,25 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 when (toBase) {
                     2 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     8 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     10 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     16 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
@@ -126,27 +111,23 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 when (toBase) {
                     2 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
+
                     8 -> {
                         return decToOct(input)
                     }
 
                     10 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
+
                     16 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
@@ -157,33 +138,25 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 when (toBase) {
                     2 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     8 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     10 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
                     16 -> {
                         return Triple(
-                            AnnotatedString(input),
-                            AnnotatedString(input),
-                            AnnotatedString(input)
+                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
                         )
                     }
 
@@ -388,12 +361,6 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
     private fun AnnotatedString.Builder.appendSuperscript(text: String) {
         withStyle(style = SpanStyle(fontSize = 12.sp, baselineShift = Superscript)) {
-            append(text)
-        }
-    }
-
-    private fun AnnotatedString.Builder.appendSubscript(text: String) {
-        withStyle(style = SpanStyle(fontSize = 12.sp, baselineShift = BaselineShift.Subscript)) {
             append(text)
         }
     }
