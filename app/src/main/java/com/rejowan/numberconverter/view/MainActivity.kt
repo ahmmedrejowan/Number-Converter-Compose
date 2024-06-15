@@ -47,8 +47,10 @@ import com.rejowan.numberconverter.R
 import com.rejowan.numberconverter.di.converterModule
 import com.rejowan.numberconverter.ui.theme.AppTheme
 import com.rejowan.numberconverter.utils.baseNameToValue
+import com.rejowan.numberconverter.view.component.DialogDecimalPlaces
 import com.rejowan.numberconverter.view.component.NCTextField
 import com.rejowan.numberconverter.viewmodel.ConverterViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
 
@@ -70,7 +72,37 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun ShowHomeContent() {
+    fun ShowHomeContent(viewModel: ConverterViewModel = koinViewModel()) {
+
+        val context = LocalContext.current
+        val clipboardManager =
+            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        val focusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
+
+        var inputValue by remember {
+            mutableStateOf("")
+        }
+
+        var inputBase by remember {
+            mutableStateOf("Bin")
+        }
+
+        var outputBase by remember {
+            mutableStateOf("Dec")
+        }
+
+        val output by viewModel.output.observeAsState()
+
+        val initialDP by viewModel.decimalPlaces.observeAsState(initial = 20)
+
+        LaunchedEffect(inputValue, inputBase, outputBase) {
+            viewModel.convert(
+                inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
+            )
+
+        }
 
         Scaffold(modifier = Modifier.fillMaxSize(),
 
@@ -108,134 +140,103 @@ class MainActivity : ComponentActivity() {
             Column(modifier = Modifier.padding(innerPadding)) {
 
 
-                ConverterUI()
+                Spacer(modifier = Modifier.height(10.dp))
 
-
-            }
-
-        }
-
-    }
-
-    @Composable
-    fun ConverterUI(viewModel: ConverterViewModel = koinViewModel()) {
-
-        val context = LocalContext.current
-        val clipboardManager =
-            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-        val focusRequester = remember { FocusRequester() }
-        val focusManager = LocalFocusManager.current
-
-        var inputValue by remember {
-            mutableStateOf("")
-        }
-
-        var inputBase by remember {
-            mutableStateOf("Bin")
-        }
-
-        var outputBase by remember {
-            mutableStateOf("Dec")
-        }
-
-        val output by viewModel.output.observeAsState()
-
-        LaunchedEffect(inputValue, inputBase, outputBase) {
-            viewModel.convert(
-                inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
-            )
-
-        }
-
-
-
-        Column {
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NCTextField(onBaseSelected = { inputBase = it },
-                onInputValueChange = { inputValue = it },
-                input = inputValue,
-                base = inputBase,
-                dropHint = "Input",
-                focusRequester = focusRequester,
-                trailingIcon = {
-                    if (inputValue.isNotEmpty()) {
-                        Icon(Icons.Filled.Clear, "", Modifier.clickable {
-                            inputValue = ""
-                        })
-                    }
-                })
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-
-
-                Box(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .size(40.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape
-                        )
-                        .clickable {
-                            val temp = inputBase
-                            inputBase = outputBase
-                            outputBase = temp
-
-                            inputValue = if (inputValue.isNotEmpty()) output ?: "" else ""
-
-                            focusManager.clearFocus()
-
-                        }, contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painterResource(id = R.drawable.ic_swap), contentDescription = ""
-                    )
-                }
-
-
-            }
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-
-            NCTextField(onBaseSelected = { outputBase = it },
-                input = if (inputValue.isEmpty()) "" else output ?: "",
-                base = outputBase,
-                readOnly = true,
-                dropHint = "Output",
-                trailingIcon = {
-                    if (output.toString().isNotEmpty() && inputValue.isNotEmpty()) {
-                        Icon(painterResource(id = R.drawable.ic_copy),
-                            contentDescription = "",
-                            Modifier.clickable {
-                                val clip = ClipData.newPlainText("Copied Text", output)
-                                clipboardManager.setPrimaryClip(clip)
-                                Toast.makeText(
-                                    context, "Copied to Clipboard", Toast.LENGTH_SHORT
-                                ).show()
-
+                NCTextField(onBaseSelected = { inputBase = it },
+                    onInputValueChange = { inputValue = it },
+                    input = inputValue,
+                    base = inputBase,
+                    dropHint = "Input",
+                    focusRequester = focusRequester,
+                    trailingIcon = {
+                        if (inputValue.isNotEmpty()) {
+                            Icon(Icons.Filled.Clear, "", Modifier.clickable {
+                                inputValue = ""
                             })
+                        }
+                    })
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+
+
+                    Box(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(40.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = CircleShape
+                            )
+                            .clickable {
+                                val temp = inputBase
+                                inputBase = outputBase
+                                outputBase = temp
+
+                                inputValue = if (inputValue.isNotEmpty()) output ?: "" else ""
+
+                                focusManager.clearFocus()
+
+                            }, contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painterResource(id = R.drawable.ic_swap), contentDescription = ""
+                        )
                     }
+
+                    Spacer(modifier = Modifier.size(5.dp))
+
+                    DialogDecimalPlaces(initialValue = initialDP, onValueChange = {
+                        viewModel.setDecimalPlaces(it)
+                    })
+
+
                 }
 
-            )
+                Spacer(modifier = Modifier.height(5.dp))
+
+
+                NCTextField(onBaseSelected = { outputBase = it },
+                    input = if (inputValue.isEmpty()) "" else output ?: "",
+                    base = outputBase,
+                    readOnly = true,
+                    dropHint = "Output",
+                    trailingIcon = {
+                        if (output.toString().isNotEmpty() && inputValue.isNotEmpty()) {
+                            Icon(painterResource(id = R.drawable.ic_copy),
+                                contentDescription = "",
+                                Modifier.clickable {
+                                    val clip = ClipData.newPlainText("Copied Text", output)
+                                    clipboardManager.setPrimaryClip(clip)
+                                    Toast.makeText(
+                                        context, "Copied to Clipboard", Toast.LENGTH_SHORT
+                                    ).show()
+
+                                })
+                        }
+                    }
+
+                )
+
+            }
+
 
         }
 
     }
+
 
     @Preview(showBackground = true)
     @Composable
     fun GreetingPreview() {
+        val context = LocalContext.current
         KoinApplication(application = {
+            androidContext(context)
             modules(listOf(converterModule))
         }) {
             AppTheme {

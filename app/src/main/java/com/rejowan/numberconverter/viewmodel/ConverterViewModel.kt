@@ -1,5 +1,6 @@
 package com.rejowan.numberconverter.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,10 +14,17 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
     private val _output = MutableLiveData<String?>()
     val output: LiveData<String?> get() = _output
 
+    private val _decimalPlaces = MutableLiveData<Int>()
+    val decimalPlaces: LiveData<Int> get() = _decimalPlaces
 
-    val decimalPlaces: LiveData<Int> = liveData {
-        emit(repository.getDecimalPlaces())
+    init {
+        viewModelScope.launch {
+            Log.e("ConverterViewModel", "init")
+            _decimalPlaces.value = repository.getDecimalPlaces()
+            Log.e("decimalPlaces", _decimalPlaces.value.toString())
+        }
     }
+
 
     fun convert(input: String, fromBase: Int, toBase: Int) {
         viewModelScope.launch {
@@ -27,6 +35,7 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
     fun setDecimalPlaces(decimalPlaces: Int) {
         viewModelScope.launch {
             repository.setDecimalPlaces(decimalPlaces)
+            _decimalPlaces.value = decimalPlaces
         }
     }
 

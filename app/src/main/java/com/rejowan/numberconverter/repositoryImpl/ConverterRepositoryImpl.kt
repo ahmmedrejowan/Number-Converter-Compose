@@ -1,6 +1,7 @@
 package com.rejowan.numberconverter.repositoryImpl
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -37,6 +38,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
     }
 
     override suspend fun setDecimalPlaces(decimalPlaces: Int) {
+        Log.e("decimalPlaces", decimalPlaces.toString())
         dataStore.edit { settings ->
             settings[DECIMAL_PLACES_KEY] = decimalPlaces
         }
@@ -46,6 +48,8 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         val decimalPlacesFlow: Flow<Int> = dataStore.data.map { preferences ->
             preferences[DECIMAL_PLACES_KEY] ?: 15
         }
+
+        Log.e("decimalPlacesFlow", decimalPlacesFlow.first().toString())
         return decimalPlacesFlow.first()
     }
 
