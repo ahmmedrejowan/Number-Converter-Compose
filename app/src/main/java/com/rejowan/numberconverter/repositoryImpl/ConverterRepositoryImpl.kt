@@ -55,29 +55,136 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             2 -> {
                 when (toBase) {
                     2 -> {
-                        return Triple(AnnotatedString(input), null, AnnotatedString(input))
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
                     }
 
-//                    8 -> {
-//                        return AnnotatedString("First convert the number to base 10, then convert it to base 8")
-//                    }
+                    8 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
 
                     10 -> {
                         return binToDec(input)
                     }
 
-//                    16 -> {
-//                        return AnnotatedString("First convert the number to base 10, then convert it to base 16")
-//                    }
+                    16 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
                 }
 
             }
 
+            8 -> {
+                when (toBase) {
+                    2 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                    8 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                    10 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                    16 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                }
+            }
+
             10 -> {
                 when (toBase) {
+                    2 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
                     8 -> {
                         return decToOct(input)
+                    }
 
+                    10 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+                    16 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                }
+            }
+
+            16 -> {
+                when (toBase) {
+                    2 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                    8 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                    10 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
+                    }
+
+                    16 -> {
+                        return Triple(
+                            AnnotatedString(input),
+                            AnnotatedString(input),
+                            AnnotatedString(input)
+                        )
                     }
 
                 }
@@ -85,10 +192,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
         }
 
-
-
-
-        return Triple(AnnotatedString(""), null, AnnotatedString(""))
+        return Triple(AnnotatedString(""), AnnotatedString(""), AnnotatedString(""))
     }
 
     private suspend fun decToOct(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
