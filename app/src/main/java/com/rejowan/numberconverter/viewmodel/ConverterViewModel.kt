@@ -34,7 +34,9 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
 
     fun explain(input: String, fromBase: Int, toBase: Int) {
         viewModelScope.launch {
-            _explanation.value = repository.explain(input, fromBase, toBase)
+            if (input.isNotEmpty()) {
+                _explanation.value = repository.explain(input, fromBase, toBase)
+            }
         }
     }
 
