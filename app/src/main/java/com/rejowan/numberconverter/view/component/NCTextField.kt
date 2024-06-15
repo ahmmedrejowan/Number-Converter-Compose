@@ -1,7 +1,8 @@
 package com.rejowan.numberconverter.view.component
 
-import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -81,15 +82,28 @@ fun NCTextField(
                 .weight(2f)
         ) {
 
-            OutlinedTextField(value = selectedBase,
+
+            OutlinedTextField(
+                value = selectedBase,
                 readOnly = true,
                 onValueChange = {
-                               selectedBase = it },
-                modifier = Modifier.clickable { mExpanded = !mExpanded },
+                    selectedBase = it
+                },
+                interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
+                        LaunchedEffect(interactionSource) {
+                            interactionSource.interactions.collect {
+                                if (it is PressInteraction.Release) {
+                                    mExpanded = !mExpanded
+                                }
+                            }
+                        }
+                    },
                 label = { Text(dropHint) },
                 trailingIcon = {
                     Icon(icon, "", Modifier.clickable { mExpanded = !mExpanded })
-                })
+                },
+            )
+
 
             DropdownMenu(expanded = mExpanded, onDismissRequest = { mExpanded = false }) {
                 baseList.forEach {
