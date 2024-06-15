@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,6 +41,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -97,10 +100,14 @@ class MainActivity : ComponentActivity() {
 
         val initialDP by viewModel.decimalPlaces.observeAsState(initial = 20)
 
-        LaunchedEffect(inputValue, inputBase, outputBase) {
+        val explanation by viewModel.explanation.observeAsState()
+
+        LaunchedEffect(inputValue, inputBase, outputBase, initialDP) {
             viewModel.convert(
                 inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
             )
+
+            viewModel.explain(inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase))
 
         }
 
@@ -222,6 +229,43 @@ class MainActivity : ComponentActivity() {
                     }
 
                 )
+
+
+
+                if (inputValue.isNotEmpty()) {
+                    Column(modifier = Modifier.clickable{
+                        focusManager.clearFocus()
+                    }) {
+
+                        Spacer(modifier = Modifier.size(10.dp))
+
+                        Text(
+                            text = "Explanation",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontSize = 18.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            textAlign = TextAlign.Center
+                        )
+
+                        HorizontalDivider()
+
+
+                        Spacer(modifier = Modifier.size(10.dp))
+
+
+                        BasicText(buildAnnotatedString {
+                            explanation?.let {
+                                append(it)
+                            }
+                        }, modifier = Modifier.padding(10.dp))
+
+
+                    }
+
+                }
+
 
             }
 

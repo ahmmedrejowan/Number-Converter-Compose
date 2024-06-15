@@ -2,6 +2,14 @@ package com.rejowan.numberconverter.repositoryImpl
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.BaselineShift.Companion.Superscript
+import androidx.compose.ui.text.substring
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -14,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.MathContext
+import kotlin.math.pow
 
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "decimal_pref")
@@ -32,10 +41,180 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             val parsedValue = toBaseTen(input, fromBase)
             val decimalPlaces = getDecimalPlaces()
             toBase(parsedValue.first, parsedValue.second, toBase, decimalPlaces)
+
         } catch (e: Throwable) {
             null
         }
     }
+
+    override suspend fun explain(input: String, fromBase: Int, toBase: Int): AnnotatedString {
+
+        when (fromBase) {
+            2 -> {
+                when (toBase) {
+                    2 -> {
+                        return AnnotatedString("The number is already in base 2")
+                    }
+
+                    8 -> {
+                        return AnnotatedString("First convert the number to base 10, then convert it to base 8")
+                    }
+
+                    10 -> {
+                        return binToDecimal(input)
+                    }
+
+                    16 -> {
+                        return AnnotatedString("First convert the number to base 10, then convert it to base 16")
+                    }
+                }
+
+            }
+
+
+        }
+
+
+
+
+        return AnnotatedString("")
+    }
+
+    private fun binToDecimal(input: String): AnnotatedString {
+
+        var decimalIntegral = 0
+        var decimalFractional = 0.0
+
+        val parts = input.uppercase().split(".")
+        val integralPart = parts[0]
+        val fractionalPart = parts.getOrNull(1) ?: ""
+
+        val integralAnnotatedString = AnnotatedString.Builder()
+        val fractionalAnnotatedString = AnnotatedString.Builder()
+
+        val integralAnnPart1 = AnnotatedString.Builder()
+        val integralAnnPart2 = AnnotatedString.Builder()
+
+        val fractionalAnnPart1 = AnnotatedString.Builder()
+        val fractionalAnnPart2 = AnnotatedString.Builder()
+
+
+        integralPart.forEachIndexed { index, c ->
+            val bit = c.toString().toInt()
+            val position = integralPart.length - index - 1
+            val value = bit * 2.0.pow(position).toInt()
+
+            decimalIntegral += value
+
+            if (index != 0) {
+                integralAnnPart1.append(" + ")
+                integralAnnPart2.append(" + ")
+            }
+
+            integralAnnPart1.append("($bit x 2")
+            integralAnnPart1.appendSuperscript("$position)")
+
+            integralAnnPart2.append("$value")
+
+        }
+
+        if (fractionalPart.isNotEmpty()) {
+            fractionalPart.forEachIndexed { index, c ->
+                val bit = c.toString().toInt()
+                val position = -index - 1
+                val value = bit * 2.0.pow(position)
+
+                decimalFractional += value
+
+                if (index != 0) {
+                    fractionalAnnPart1.append(" + ")
+                    fractionalAnnPart2.append(" + ")
+                }
+
+                fractionalAnnPart1.append("($bit x 2")
+                fractionalAnnPart1.appendSuperscript("$position)")
+
+                fractionalAnnPart2.append("$value")
+            }
+        }
+
+
+        integralAnnotatedString.appendBold("Integral Part\n\n")
+        integralAnnotatedString.appendSemiBold(integralPart)
+        integralAnnotatedString.appendSmall(" (Bin)\n= ")
+        integralAnnotatedString.append(integralAnnPart1.toAnnotatedString())
+        integralAnnotatedString.append("\n= ")
+        integralAnnotatedString.append(integralAnnPart2.toAnnotatedString())
+        integralAnnotatedString.append("\n= ")
+        integralAnnotatedString.appendSemiBold("$decimalIntegral")
+        integralAnnotatedString.appendSmall(" (Dec)")
+
+
+        if (fractionalPart.isNotEmpty()) {
+            fractionalAnnotatedString.appendBold("\n\n\nFractional Part\n\n0.")
+            fractionalAnnotatedString.appendSemiBold(fractionalPart)
+            fractionalAnnotatedString.appendSmall(" (Bin)\n= ")
+            fractionalAnnotatedString.append(fractionalAnnPart1.toAnnotatedString())
+            fractionalAnnotatedString.append("\n= ")
+            fractionalAnnotatedString.append(fractionalAnnPart2.toAnnotatedString())
+            fractionalAnnotatedString.append("\n= ")
+            fractionalAnnotatedString.appendSemiBold("$decimalFractional")
+            fractionalAnnotatedString.appendSmall(" (Dec)")
+        }
+
+
+        val result = AnnotatedString.Builder()
+        result.append("\n\n\n")
+        result.appendBold("Result\n\n")
+        result.append(input)
+        result.appendSmall(" (Bin)\n= ")
+        result.append("$decimalIntegral")
+        if (fractionalPart.isNotEmpty()) {
+            result.append(".")
+            result.append(decimalFractional.toString().substring(2))
+        }
+        result.appendSmall(" (Dec)")
+
+
+        val finalAnnotatedString = AnnotatedString.Builder()
+        finalAnnotatedString.append(integralAnnotatedString.toAnnotatedString())
+        finalAnnotatedString.append(fractionalAnnotatedString.toAnnotatedString())
+        finalAnnotatedString.append(result.toAnnotatedString())
+
+        return finalAnnotatedString.toAnnotatedString()
+    }
+
+
+    fun AnnotatedString.Builder.appendSuperscript(text: String) {
+        withStyle(style = SpanStyle(fontSize = 12.sp, baselineShift = Superscript)) {
+            append(text)
+        }
+    }
+
+    fun AnnotatedString.Builder.appendSubscript(text: String) {
+        withStyle(style = SpanStyle(fontSize = 12.sp, baselineShift = BaselineShift.Subscript)) {
+            append(text)
+        }
+    }
+
+    fun AnnotatedString.Builder.appendBold(text: String) {
+        withStyle(style = SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold)) {
+            append(text)
+        }
+    }
+
+    fun AnnotatedString.Builder.appendSmall(text: String) {
+        withStyle(style = SpanStyle(fontSize = 12.sp)) {
+            append(text)
+        }
+    }
+
+    fun AnnotatedString.Builder.appendSemiBold(text: String) {
+        withStyle(style = SpanStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold)) {
+            append(text)
+        }
+    }
+
 
     override suspend fun setDecimalPlaces(decimalPlaces: Int) {
         Log.e("decimalPlaces", decimalPlaces.toString())
@@ -90,7 +269,6 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
         return Pair(integerResult, fractionResult)
     }
-
 
     private fun toBase(
         intPart: BigInteger, decimalPart: BigDecimal?, toBase: Int, decimalPlaces: Int
