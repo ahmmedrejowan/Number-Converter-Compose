@@ -255,11 +255,12 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.size(10.dp))
 
 
-                        BasicText(buildAnnotatedString {
+                        Text(buildAnnotatedString {
                             explanation?.let {
                                 append(it)
                             }
-                        }, modifier = Modifier.padding(10.dp))
+                        }, modifier = Modifier.padding(10.dp),
+                            color = MaterialTheme.colorScheme.onBackground)
 
 
                     }
