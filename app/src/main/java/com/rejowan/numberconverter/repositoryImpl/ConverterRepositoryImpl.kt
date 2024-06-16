@@ -55,7 +55,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 when (toBase) {
                     2 -> {
                         return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
+                            AnnotatedString("Both bases are same"), AnnotatedString("Both bases are same"), AnnotatedString("Both bases are same")
                         )
                     }
 
@@ -110,9 +110,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             10 -> {
                 when (toBase) {
                     2 -> {
-                        return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
-                        )
+                        return decToBin(input)
                     }
 
                     8 -> {
@@ -121,14 +119,12 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
 
                     10 -> {
                         return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
+                            AnnotatedString("Both bases are same"), AnnotatedString("Both bases are same"), AnnotatedString("Both bases are same")
                         )
                     }
 
                     16 -> {
-                        return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
-                        )
+                        return decToHex(input)
                     }
 
                 }
@@ -168,6 +164,93 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         return Triple(AnnotatedString(""), AnnotatedString(""), AnnotatedString(""))
     }
 
+    private suspend fun decToBin(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
+
+        val decimalPlaces = getDecimalPlaces()
+
+        val parts = input.uppercase().split(".")
+
+        val integralAnnotatedString = AnnotatedString.Builder()
+        val integralString = StringBuilder()
+
+        val fractionalAnnotatedString = AnnotatedString.Builder()
+        val fractionalString = StringBuilder()
+
+        var integralPart = BigInteger(parts[0])
+
+        while (integralPart > BigInteger.ZERO) {
+            val originalValue = integralPart
+            val remainder = integralPart.rem(BigInteger.valueOf(2))
+            integralString.insert(0, remainder)
+            integralPart = integralPart.div(BigInteger.valueOf(2))
+
+            integralAnnotatedString.append("• $originalValue÷2=$integralPart (Remainder = ")
+            integralAnnotatedString.appendSubTitle("$remainder")
+            integralAnnotatedString.append(")\n")
+        }
+
+
+        var steps = 0
+
+        if (parts.size == 2) {
+            val fractionalPart = BigDecimal("0.${parts[1]}")
+            var fractionalPartTemp = fractionalPart
+            val base = BigDecimal(2)
+            val mc = MathContext.DECIMAL128
+
+            while (fractionalPartTemp > BigDecimal.ZERO && steps < decimalPlaces) {
+                val originalValue = fractionalPartTemp
+                fractionalPartTemp = fractionalPartTemp.multiply(base, mc)
+                val integerPart = fractionalPartTemp.setScale(0, RoundingMode.FLOOR)
+                fractionalString.append(integerPart)
+
+                fractionalAnnotatedString.append("• $originalValue×2=$fractionalPartTemp (Subtract Int part = ")
+                fractionalAnnotatedString.appendSubTitle("$integerPart")
+                fractionalAnnotatedString.append(")\n")
+                fractionalPartTemp = fractionalPartTemp.subtract(integerPart, mc)
+                steps++
+
+            }
+
+        }
+
+        integralAnnotatedString.appendSmall("\nCounting from bottom to top, the remainders are the octal equivalent of the decimal number\n So, ")
+        integralAnnotatedString.appendSubTitle("${parts[0]} ")
+        integralAnnotatedString.appendSmall("(Dec)")
+        integralAnnotatedString.append(" = ")
+        integralAnnotatedString.appendSubTitle(integralString.toString())
+        integralAnnotatedString.appendSmall(" (Oct)")
+
+        if (parts.size == 2) {
+            val fractionalPart = BigDecimal("0.${parts[1]}")
+            fractionalAnnotatedString.appendSmall("\nCounting from top to bottom, the integer parts are the octal equivalent of the decimal number\n So, ")
+            fractionalAnnotatedString.appendSubTitle("$fractionalPart ")
+            fractionalAnnotatedString.appendSmall("(Dec)")
+            fractionalAnnotatedString.append(" = ")
+            fractionalAnnotatedString.appendSubTitle(fractionalString.toString())
+            fractionalAnnotatedString.appendSmall(" (Oct)")
+        }
+
+
+        val result = AnnotatedString.Builder()
+        result.appendSubTitle(input)
+        result.appendSmall(" (Dec)\n= ")
+        result.appendSubTitle(integralString.toString())
+        if (parts.size == 2) {
+            result.appendSubTitle(".")
+            result.appendSubTitle(fractionalString.toString())
+        }
+        result.appendSmall(" (Oct)")
+
+        return Triple(
+            integralAnnotatedString.toAnnotatedString(),
+            fractionalAnnotatedString.toAnnotatedString(),
+            result.toAnnotatedString()
+        )
+
+
+    }
+
     private suspend fun decToOct(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
 
         val decimalPlaces = getDecimalPlaces()
@@ -188,7 +271,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             integralString.insert(0, remainder)
             integralPart = integralPart.div(BigInteger.valueOf(8))
 
-            integralAnnotatedString.append("• $originalValue÷2=$integralPart (Remainder = ")
+            integralAnnotatedString.append("• $originalValue÷8=$integralPart (Remainder = ")
             integralAnnotatedString.appendSubTitle("$remainder")
             integralAnnotatedString.append(")\n")
         }
@@ -253,6 +336,94 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         )
 
     }
+
+    private suspend fun decToHex(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
+
+        val decimalPlaces = getDecimalPlaces()
+
+        val parts = input.uppercase().split(".")
+
+        val integralAnnotatedString = AnnotatedString.Builder()
+        val integralString = StringBuilder()
+
+        val fractionalAnnotatedString = AnnotatedString.Builder()
+        val fractionalString = StringBuilder()
+
+        var integralPart = BigInteger(parts[0])
+
+        while (integralPart > BigInteger.ZERO) {
+            val originalValue = integralPart
+            val remainder = integralPart.rem(BigInteger.valueOf(16))
+            integralString.insert(0, remainder.toString(16).uppercase())
+            integralPart = integralPart.div(BigInteger.valueOf(16))
+
+            integralAnnotatedString.append("• $originalValue÷16=$integralPart (Remainder = ")
+            integralAnnotatedString.appendSubTitle(remainder.toString(16).uppercase())
+            integralAnnotatedString.append(")\n")
+        }
+
+
+        var steps = 0
+
+        if (parts.size == 2) {
+            val fractionalPart = BigDecimal("0.${parts[1]}")
+            var fractionalPartTemp = fractionalPart
+            val base = BigDecimal(16)
+            val mc = MathContext.DECIMAL128
+
+            while (fractionalPartTemp > BigDecimal.ZERO && steps < decimalPlaces) {
+                val originalValue = fractionalPartTemp
+                fractionalPartTemp = fractionalPartTemp.multiply(base, mc)
+                val integerPart = fractionalPartTemp.setScale(0, RoundingMode.FLOOR)
+                fractionalString.append(integerPart.toInt().toString(16).uppercase())
+
+                fractionalAnnotatedString.append("• $originalValue×16=$fractionalPartTemp (Subtract Int part = ")
+                fractionalAnnotatedString.appendSubTitle(integerPart.toInt().toString(16).uppercase())
+                fractionalAnnotatedString.append(")\n")
+                fractionalPartTemp = fractionalPartTemp.subtract(integerPart, mc)
+                steps++
+
+            }
+
+        }
+
+        integralAnnotatedString.appendSmall("\nCounting from bottom to top, the remainders are the octal equivalent of the decimal number\n So, ")
+        integralAnnotatedString.appendSubTitle("${parts[0]} ")
+        integralAnnotatedString.appendSmall("(Dec)")
+        integralAnnotatedString.append(" = ")
+        integralAnnotatedString.appendSubTitle(integralString.toString())
+        integralAnnotatedString.appendSmall(" (Oct)")
+
+        if (parts.size == 2) {
+            val fractionalPart = BigDecimal("0.${parts[1]}")
+            fractionalAnnotatedString.appendSmall("\nCounting from top to bottom, the integer parts are the octal equivalent of the decimal number\n So, ")
+            fractionalAnnotatedString.appendSubTitle("$fractionalPart ")
+            fractionalAnnotatedString.appendSmall("(Dec)")
+            fractionalAnnotatedString.append(" = ")
+            fractionalAnnotatedString.appendSubTitle(fractionalString.toString())
+            fractionalAnnotatedString.appendSmall(" (Oct)")
+        }
+
+
+        val result = AnnotatedString.Builder()
+        result.appendSubTitle(input)
+        result.appendSmall(" (Dec)\n= ")
+        result.appendSubTitle(integralString.toString())
+        if (parts.size == 2) {
+            result.appendSubTitle(".")
+            result.appendSubTitle(fractionalString.toString())
+        }
+        result.appendSmall(" (Oct)")
+
+        return Triple(
+            integralAnnotatedString.toAnnotatedString(),
+            fractionalAnnotatedString.toAnnotatedString(),
+            result.toAnnotatedString()
+        )
+
+
+    }
+
 
     private fun binToDec(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
 

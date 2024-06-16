@@ -25,7 +25,6 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
         }
     }
 
-
     fun convert(input: String, fromBase: Int, toBase: Int) {
         viewModelScope.launch {
             _output.value = repository.convert(input, fromBase, toBase)
@@ -46,6 +45,5 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
             _decimalPlaces.value = decimalPlaces
         }
     }
-
 
 }
