@@ -3,17 +3,16 @@ package com.rejowan.numberconverter.repositoryImpl
 import android.content.Context
 import android.util.Log
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift.Companion.Superscript
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.sp
+
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.rejowan.numberconverter.repository.ConverterRepository
+import com.rejowan.numberconverter.utils.appendSmall
+import com.rejowan.numberconverter.utils.appendSubTitle
+import com.rejowan.numberconverter.utils.appendSuperscript
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -33,7 +32,6 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
     companion object {
         val DECIMAL_PLACES_KEY = intPreferencesKey("decimal_places")
     }
-
 
     override suspend fun convert(input: String, fromBase: Int, toBase: Int): String? {
         return try {
@@ -994,25 +992,6 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 if (fractionalPart.isNotEmpty()) decimalFractional.toString().substring(2) else null
             )
         )
-    }
-
-
-    private fun AnnotatedString.Builder.appendSuperscript(text: String) {
-        withStyle(style = SpanStyle(fontSize = 12.sp, baselineShift = Superscript)) {
-            append(text)
-        }
-    }
-
-    private fun AnnotatedString.Builder.appendSubTitle(text: String) {
-        withStyle(style = SpanStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold)) {
-            append(text)
-        }
-    }
-
-    private fun AnnotatedString.Builder.appendSmall(text: String) {
-        withStyle(style = SpanStyle(fontSize = 13.sp)) {
-            append(text)
-        }
     }
 
 
