@@ -129,26 +129,22 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             16 -> {
                 when (toBase) {
                     2 -> {
-                        return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
-                        )
+                        return hexToBin(input)
                     }
 
                     8 -> {
-                        return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
-                        )
+                        return hexToOct(input)
                     }
 
                     10 -> {
-                        return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
-                        )
+                        return hexToDec(input).first
                     }
 
                     16 -> {
                         return Triple(
-                            AnnotatedString(input), AnnotatedString(input), AnnotatedString(input)
+                            AnnotatedString("Both bases are same"),
+                            AnnotatedString("Both bases are same"),
+                            AnnotatedString("Both bases are same")
                         )
                     }
 
@@ -170,14 +166,14 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         val annotatedIntegral = AnnotatedString.Builder()
         annotatedIntegral.appendSubTitle("Binary to Decimal\n")
         annotatedIntegral.append(binToDecimal.first.first)
-        annotatedIntegral.append("\n\nDecimal to Octal\n")
+        annotatedIntegral.appendSubTitle("\n\nDecimal to Octal\n")
         annotatedIntegral.append(decimalToOctal.first.first)
 
         val annotatedFractional = AnnotatedString.Builder()
         if (binToDecimal.first.second != null) {
             annotatedFractional.appendSubTitle("Binary to Decimal\n")
             annotatedFractional.append(binToDecimal.first.second)
-            annotatedFractional.append("\n\nDecimal to Octal\n")
+            annotatedFractional.appendSubTitle("\n\nDecimal to Octal\n")
             annotatedFractional.append(decimalToOctal.first.second)
         }
 
@@ -318,14 +314,14 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         val annotatedIntegral = AnnotatedString.Builder()
         annotatedIntegral.appendSubTitle("Binary to Decimal\n")
         annotatedIntegral.append(binToDecimal.first.first)
-        annotatedIntegral.append("\n\nDecimal to Hexadecimal\n")
+        annotatedIntegral.appendSubTitle("\n\nDecimal to Hexadecimal\n")
         annotatedIntegral.append(decimalToHex.first.first)
 
         val annotatedFractional = AnnotatedString.Builder()
         if (binToDecimal.first.second != null) {
             annotatedFractional.appendSubTitle("Binary to Decimal\n")
             annotatedFractional.append(binToDecimal.first.second)
-            annotatedFractional.append("\n\nDecimal to Hexadecimal\n")
+            annotatedFractional.appendSubTitle("\n\nDecimal to Hexadecimal\n")
             annotatedFractional.append(decimalToHex.first.second)
         }
 
@@ -357,14 +353,14 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         val annotatedIntegral = AnnotatedString.Builder()
         annotatedIntegral.appendSubTitle("Octal to Decimal\n")
         annotatedIntegral.append(octToDecimal.first.first)
-        annotatedIntegral.append("\n\nDecimal to Binary\n")
+        annotatedIntegral.appendSubTitle("\n\nDecimal to Binary\n")
         annotatedIntegral.append(decimalToBin.first.first)
 
         val annotatedFractional = AnnotatedString.Builder()
         if (octToDecimal.first.second != null) {
             annotatedFractional.appendSubTitle("Octal to Decimal\n")
             annotatedFractional.append(octToDecimal.first.second)
-            annotatedFractional.append("\n\nDecimal to Binary\n")
+            annotatedFractional.appendSubTitle("\n\nDecimal to Binary\n")
             annotatedFractional.append(decimalToBin.first.second)
         }
 
@@ -505,14 +501,14 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         val annotatedIntegral = AnnotatedString.Builder()
         annotatedIntegral.appendSubTitle("Octal to Decimal\n")
         annotatedIntegral.append(octToDecimal.first.first)
-        annotatedIntegral.append("\n\nDecimal to Hexadecimal\n")
+        annotatedIntegral.appendSubTitle("\n\nDecimal to Hexadecimal\n")
         annotatedIntegral.append(decimalToHex.first.first)
 
         val annotatedFractional = AnnotatedString.Builder()
         if (!octToDecimal.first.second.isNullOrEmpty()) {
             annotatedFractional.appendSubTitle("Octal to Decimal\n")
             annotatedFractional.append(octToDecimal.first.second)
-            annotatedFractional.append("\n\nDecimal to Hexadecimal\n")
+            annotatedFractional.appendSubTitle("\n\nDecimal to Hexadecimal\n")
             annotatedFractional.append(decimalToHex.first.second)
         }
 
@@ -617,8 +613,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 integralAnnotatedString.toAnnotatedString(),
                 fractionalAnnotatedString.toAnnotatedString(),
                 result.toAnnotatedString()
-            ),
-            Pair(
+            ), Pair(
                 integralString.toString(),
                 if (parts.size == 2) fractionalString.toString() else null
             )
@@ -710,7 +705,11 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 integralAnnotatedString.toAnnotatedString(),
                 fractionalAnnotatedString.toAnnotatedString(),
                 result.toAnnotatedString()
-            ), Pair(integralString.toString(), if (parts.size == 2) fractionalString.toString() else null)
+            ),
+            Pair(
+                integralString.toString(),
+                if (parts.size == 2) fractionalString.toString() else null
+            )
         )
 
     }
@@ -800,13 +799,202 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
                 integralAnnotatedString.toAnnotatedString(),
                 fractionalAnnotatedString.toAnnotatedString(),
                 result.toAnnotatedString()
-            ), Pair(integralString.toString(), if (parts.size == 2) fractionalString.toString() else null)
+            ),
+            Pair(
+                integralString.toString(),
+                if (parts.size == 2) fractionalString.toString() else null
+            )
         )
 
 
     }
 
+    private suspend fun hexToBin(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
 
+        val binToDecimal = hexToDec(input)
+        val decimalNumber =
+            binToDecimal.second.first + if (binToDecimal.second.second != null) ".${binToDecimal.second.second}" else ""
+        val decToBin = decToBin(decimalNumber)
+
+        val annotatedIntegral = AnnotatedString.Builder()
+        annotatedIntegral.appendSubTitle("Hexadecimal to Decimal\n")
+        annotatedIntegral.append(binToDecimal.first.first)
+        annotatedIntegral.appendSubTitle("\n\nDecimal to Bin\n")
+        annotatedIntegral.append(decToBin.first.first)
+
+        val annotatedFractional = AnnotatedString.Builder()
+        if (binToDecimal.first.second != null) {
+            annotatedFractional.appendSubTitle("Hexadecimal to Decimal\n")
+            annotatedFractional.append(binToDecimal.first.second)
+            annotatedFractional.appendSubTitle("\n\nDecimal to Bin\n")
+            annotatedFractional.append(decToBin.first.second)
+        }
+
+        val result = AnnotatedString.Builder()
+        result.appendSubTitle(input)
+        result.appendSmall(" (Hex)\n= ")
+        result.appendSubTitle(decToBin.second.first)
+        if (decToBin.second.second != null) {
+            result.appendSubTitle(".")
+            result.appendSubTitle(decToBin.second.second.toString())
+        }
+        result.appendSmall(" (Bin)")
+
+        return Triple(
+            annotatedIntegral.toAnnotatedString(),
+            annotatedFractional.toAnnotatedString(),
+            result.toAnnotatedString()
+        )
+
+    }
+
+    private suspend fun hexToOct(input: String): Triple<AnnotatedString, AnnotatedString?, AnnotatedString> {
+
+        val binToDecimal = hexToDec(input)
+        val decimalNumber =
+            binToDecimal.second.first + if (binToDecimal.second.second != null) ".${binToDecimal.second.second}" else ""
+        val decToOct = decToOct(decimalNumber)
+
+        val annotatedIntegral = AnnotatedString.Builder()
+        annotatedIntegral.appendSubTitle("Hexadecimal to Decimal\n")
+        annotatedIntegral.append(binToDecimal.first.first)
+        annotatedIntegral.appendSubTitle("\n\nDecimal to Octal\n")
+        annotatedIntegral.append(decToOct.first.first)
+
+        val annotatedFractional = AnnotatedString.Builder()
+        if (binToDecimal.first.second != null) {
+            annotatedFractional.appendSubTitle("Hexadecimal to Decimal\n")
+            annotatedFractional.append(binToDecimal.first.second)
+            annotatedFractional.appendSubTitle("\n\nDecimal to Octal\n")
+            annotatedFractional.append(decToOct.first.second)
+        }
+
+        val result = AnnotatedString.Builder()
+        result.appendSubTitle(input)
+        result.appendSmall(" (Hex)\n= ")
+        result.appendSubTitle(decToOct.second.first)
+        if (decToOct.second.second != null) {
+            result.appendSubTitle(".")
+            result.appendSubTitle(decToOct.second.second.toString())
+        }
+        result.appendSmall(" (Oct)")
+
+        return Triple(
+            annotatedIntegral.toAnnotatedString(),
+            annotatedFractional.toAnnotatedString(),
+            result.toAnnotatedString()
+        )
+
+    }
+
+    private fun hexToDec(input: String): Pair<Triple<AnnotatedString, AnnotatedString?, AnnotatedString>, Pair<String, String?>> {
+
+        var decimalIntegral = 0
+        var decimalFractional = BigDecimal.ZERO
+
+        val parts = input.uppercase().split(".")
+        val integralPart = parts[0]
+        val fractionalPart = parts.getOrNull(1) ?: ""
+
+        val integralAnnotatedString = AnnotatedString.Builder()
+        val fractionalAnnotatedString = AnnotatedString.Builder()
+
+        val integralAnnPart1 = AnnotatedString.Builder()
+        val integralAnnPart2 = AnnotatedString.Builder()
+
+        val fractionalAnnPart1 = AnnotatedString.Builder()
+        val fractionalAnnPart2 = AnnotatedString.Builder()
+
+
+        integralPart.forEachIndexed { index, c ->
+            val bit = c.toString().toInt()
+            val position = integralPart.length - index - 1
+            val value = bit * 16.0.pow(position).toInt()
+
+            decimalIntegral += value
+
+            if (index != 0) {
+                integralAnnPart1.append(" + ")
+                integralAnnPart2.append(" + ")
+            }
+
+            integralAnnPart1.append("($bit x 16")
+            integralAnnPart1.appendSuperscript("$position)")
+
+            integralAnnPart2.append("$value")
+
+        }
+
+
+        if (fractionalPart.isNotEmpty()) {
+            val base = BigDecimal(16)
+            val mc = MathContext.DECIMAL128
+
+            fractionalPart.forEachIndexed { index, c ->
+                val bit = c.toString().toInt()
+                val position = -index - 1
+                val exponent = base.pow(position, mc)
+                val value = BigDecimal(bit).multiply(exponent, mc)
+
+                decimalFractional = decimalFractional.add(value, mc)
+
+                if (index != 0) {
+                    fractionalAnnPart1.append(" + ")
+                    fractionalAnnPart2.append(" + ")
+                }
+
+                fractionalAnnPart1.append("($bit x 16")
+                fractionalAnnPart1.appendSuperscript("$position)")
+
+                fractionalAnnPart2.append("${value.stripTrailingZeros()}")
+            }
+        }
+
+
+        integralAnnotatedString.appendSubTitle(integralPart)
+        integralAnnotatedString.appendSmall(" (Hex)\n= ")
+        integralAnnotatedString.append(integralAnnPart1.toAnnotatedString())
+        integralAnnotatedString.append("\n= ")
+        integralAnnotatedString.append(integralAnnPart2.toAnnotatedString())
+        integralAnnotatedString.append("\n= ")
+        integralAnnotatedString.appendSubTitle("$decimalIntegral")
+        integralAnnotatedString.appendSmall(" (Dec)")
+
+
+        if (fractionalPart.isNotEmpty()) {
+            fractionalAnnotatedString.appendSubTitle(fractionalPart)
+            fractionalAnnotatedString.appendSmall(" (Hex)\n= ")
+            fractionalAnnotatedString.append(fractionalAnnPart1.toAnnotatedString())
+            fractionalAnnotatedString.append("\n= ")
+            fractionalAnnotatedString.append(fractionalAnnPart2.toAnnotatedString())
+            fractionalAnnotatedString.append("\n= ")
+            fractionalAnnotatedString.appendSubTitle("${decimalFractional.stripTrailingZeros()}")
+            fractionalAnnotatedString.appendSmall(" (Dec)")
+        }
+
+
+        val result = AnnotatedString.Builder()
+        result.appendSubTitle(input)
+        result.appendSmall(" (Hex)\n= ")
+        result.appendSubTitle("$decimalIntegral")
+        if (fractionalPart.isNotEmpty()) {
+            result.appendSubTitle(".")
+            result.appendSubTitle(decimalFractional.stripTrailingZeros().toString().substring(2))
+        }
+        result.appendSmall(" (Dec)")
+
+
+        return Pair(
+            Triple(
+                integralAnnotatedString.toAnnotatedString(),
+                fractionalAnnotatedString.toAnnotatedString(),
+                result.toAnnotatedString()
+            ), Pair(
+                decimalIntegral.toString(),
+                if (fractionalPart.isNotEmpty()) decimalFractional.toString().substring(2) else null
+            )
+        )
+    }
 
 
     private fun AnnotatedString.Builder.appendSuperscript(text: String) {
