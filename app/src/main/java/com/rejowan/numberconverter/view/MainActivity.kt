@@ -3,8 +3,11 @@ package com.rejowan.numberconverter.view
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -26,8 +29,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -113,18 +115,36 @@ class MainActivity : ComponentActivity() {
 
         val explanation by viewModel.explanation.observeAsState()
 
+        fun validateInput(input: String, base: String): Boolean {
+            if (input.split(".").size > 2) {
+                return false
+            }
+
+            val baseValue = baseNameToValue(base)
+
+            val validChars = ('0' until '0' + baseValue).joinToString("") +
+                    if (baseValue > 10) ('A' until 'A' + baseValue - 10).joinToString("") else ""
+
+            return input.uppercase().replace(".", "").all { it in validChars } &&
+                    input.all { it.isDigit() || it in 'A'..'F' || it == '.' }
+        }
+
         var expanded by remember {
             mutableStateOf(false)
         }
 
-        val icon = if (expanded) R.drawable.collapse_content_24px else R.drawable.expand_content_24px
+        val icon =
+            if (expanded) R.drawable.collapse_content_24px else R.drawable.expand_content_24px
 
         LaunchedEffect(inputValue, inputBase, outputBase, initialDP) {
-            viewModel.convert(
-                inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
-            )
 
-            viewModel.explain(inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase))
+            if (validateInput(inputValue,inputBase)){
+                viewModel.convert(
+                    inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
+                )
+
+                viewModel.explain(inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase))
+            }
 
         }
 
@@ -132,28 +152,49 @@ class MainActivity : ComponentActivity() {
 
             topBar = {
 
-                Column(Modifier.fillMaxWidth()) {
-                    Spacer(modifier = Modifier.height(15.dp))
+                if (!expanded) {
 
-                    Text(
-                        text = "Number Converter",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 20.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+                    Row(Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,) {
 
-                    Text(
-                        text = "Convert between bases with ease!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .padding(2.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+                        IconButton(onClick = {  }) {
+                        }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Spacer(modifier = Modifier.height(15.dp))
+
+                            Text(
+                                text = "Number Converter",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontSize = 20.sp,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+
+                            Text(
+                                text = "Convert between bases with ease!",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                        }
+
+                        IconButton(onClick = {
+                            startActivity(Intent(context, Settings::class.java))
+                        }) {
+
+                            Icon(Icons.Default.Settings, contentDescription ="Settings",
+                                tint = MaterialTheme.colorScheme.secondary)
+
+                        }
+                    }
+
 
                 }
 
@@ -190,7 +231,7 @@ class MainActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    if (!expanded){
+                    if (!expanded) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -211,14 +252,16 @@ class MainActivity : ComponentActivity() {
                                         inputBase = outputBase
                                         outputBase = temp
 
-                                        inputValue = if (inputValue.isNotEmpty()) output ?: "" else ""
+                                        inputValue =
+                                            if (inputValue.isNotEmpty()) output ?: "" else ""
 
                                         focusManager.clearFocus()
 
                                     }, contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    painterResource(id = R.drawable.ic_swap), contentDescription = ""
+                                    painterResource(id = R.drawable.ic_swap),
+                                    contentDescription = ""
                                 )
                             }
 
@@ -267,11 +310,11 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.size(10.dp))
 
                         Row {
-                            Column (Modifier.weight(1f)) {
+                            Column(Modifier.weight(1f)) {
 
                             }
 
-                            Column (Modifier.weight(5f)) {
+                            Column(Modifier.weight(5f)) {
                                 Text(
                                     text = "Explanation",
                                     style = MaterialTheme.typography.titleMedium,
@@ -283,7 +326,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            Column (Modifier.weight(1f)) {
+                            Column(Modifier.weight(1f)) {
 
                                 IconButton(onClick = {
                                     expanded = !expanded
@@ -390,12 +433,16 @@ class MainActivity : ComponentActivity() {
 
                 } else {
 
-                    Column (Modifier.fillMaxSize(),
+                    Column(
+                        Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center) {
+                        verticalArrangement = Arrangement.Center
+                    ) {
 
-                        Image(painterResource(id = R.drawable.info_empty_magic),
-                            contentDescription = "")
+                        Image(
+                            painterResource(id = R.drawable.info_empty_magic),
+                            contentDescription = ""
+                        )
 
 
                         Text(
@@ -421,6 +468,7 @@ class MainActivity : ComponentActivity() {
         }
 
     }
+
 
 
     @Preview(showBackground = true)

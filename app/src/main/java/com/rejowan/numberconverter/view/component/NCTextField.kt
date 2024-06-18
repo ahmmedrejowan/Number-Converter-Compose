@@ -43,7 +43,7 @@ fun NCTextField(
     dropHint: String = "",
     readOnly: Boolean = false,
     focusRequester: FocusRequester = FocusRequester(),
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
 
 
@@ -60,7 +60,6 @@ fun NCTextField(
 
 
     fun validateInput(input: String, base: String): Boolean {
-
         if (input.split(".").size > 2) {
             isDotError = true
             return false
@@ -68,15 +67,14 @@ fun NCTextField(
         isDotError = false
 
         val baseValue = baseNameToValue(base)
-        return input.uppercase().replace(".", "").all {
-            val digitValue = when (it) {
-                in '0'..'9' -> it - '0'
-                in 'A'..'F' -> it - 'A' + 10
-                else -> -1
-            }
-            digitValue in 0 until baseValue
-        }
+
+        val validChars = ('0' until '0' + baseValue).joinToString("") +
+                if (baseValue > 10) ('A' until 'A' + baseValue - 10).joinToString("") else ""
+
+        return input.uppercase().replace(".", "").all { it in validChars } &&
+                input.all { it.isDigit() || it in 'A'..'Z' || it == '.' }
     }
+
 
     LaunchedEffect(mInput, base) {
         isValid = validateInput(mInput, base)
