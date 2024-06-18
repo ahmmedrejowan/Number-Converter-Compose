@@ -52,6 +52,7 @@ fun NCTextField(
     var selectedBase = base
     var isValid by remember { mutableStateOf(true) }
     var mInput = input
+    var isDotError by remember { mutableStateOf(false) }
 
 
     val icon = if (mExpanded) Icons.Filled.KeyboardArrowUp
@@ -59,6 +60,13 @@ fun NCTextField(
 
 
     fun validateInput(input: String, base: String): Boolean {
+
+        if (input.split(".").size > 2) {
+            isDotError = true
+            return false
+        }
+        isDotError = false
+
         val baseValue = baseNameToValue(base)
         return input.uppercase().replace(".", "").all {
             val digitValue = when (it) {
@@ -142,7 +150,7 @@ fun NCTextField(
                 .padding(5.dp)
                 .weight(4f)
                 .focusRequester(focusRequester = focusRequester),
-            label = { Text(text = if (isValid) mLabel else getErrorMessage(base)) },
+            label = { Text(text = if (isValid) mLabel else if (isDotError) "Invalid, multiple decimal point (.)" else getErrorMessage(base)) },
             isError = !isValid,
             trailingIcon = trailingIcon,
             keyboardOptions = KeyboardOptions(

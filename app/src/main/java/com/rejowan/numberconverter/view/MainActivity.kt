@@ -26,8 +26,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -110,6 +113,12 @@ class MainActivity : ComponentActivity() {
 
         val explanation by viewModel.explanation.observeAsState()
 
+        var expanded by remember {
+            mutableStateOf(false)
+        }
+
+        val icon = if (expanded) R.drawable.collapse_content_24px else R.drawable.expand_content_24px
+
         LaunchedEffect(inputValue, inputBase, outputBase, initialDP) {
             viewModel.convert(
                 inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
@@ -161,88 +170,94 @@ class MainActivity : ComponentActivity() {
                 }) {
 
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Column {
 
-                NCTextField(onBaseSelected = { inputBase = it },
-                    onInputValueChange = { inputValue = it },
-                    input = inputValue,
-                    base = inputBase,
-                    dropHint = "Input",
-                    focusRequester = focusRequester,
-                    trailingIcon = {
-                        if (inputValue.isNotEmpty()) {
-                            Icon(Icons.Filled.Clear, "", Modifier.clickable {
-                                inputValue = ""
-                            })
-                        }
-                    })
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                Spacer(modifier = Modifier.height(5.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-
-
-                    Box(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(40.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = CircleShape
-                            )
-                            .clickable {
-                                val temp = inputBase
-                                inputBase = outputBase
-                                outputBase = temp
-
-                                inputValue = if (inputValue.isNotEmpty()) output ?: "" else ""
-
-                                focusManager.clearFocus()
-
-                            }, contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painterResource(id = R.drawable.ic_swap), contentDescription = ""
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.size(5.dp))
-
-                    DialogDecimalPlaces(initialValue = initialDP, onValueChange = {
-                        viewModel.setDecimalPlaces(it)
-                    })
-
-
-                }
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-
-                NCTextField(onBaseSelected = { outputBase = it },
-                    input = if (inputValue.isEmpty()) "" else output ?: "",
-                    base = outputBase,
-                    readOnly = true,
-                    dropHint = "Output",
-                    trailingIcon = {
-                        if (output.toString().isNotEmpty() && inputValue.isNotEmpty()) {
-                            Icon(painterResource(id = R.drawable.ic_copy),
-                                contentDescription = "",
-                                Modifier.clickable {
-                                    val clip = ClipData.newPlainText("Copied Text", output)
-                                    clipboardManager.setPrimaryClip(clip)
-                                    Toast.makeText(
-                                        context, "Copied to Clipboard", Toast.LENGTH_SHORT
-                                    ).show()
-
+                    NCTextField(onBaseSelected = { inputBase = it },
+                        onInputValueChange = { inputValue = it },
+                        input = inputValue,
+                        base = inputBase,
+                        dropHint = "Input",
+                        focusRequester = focusRequester,
+                        trailingIcon = {
+                            if (inputValue.isNotEmpty()) {
+                                Icon(Icons.Filled.Clear, "", Modifier.clickable {
+                                    inputValue = ""
                                 })
+                            }
+                        })
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    if (!expanded){
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+
+
+                            Box(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .size(40.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        shape = CircleShape
+                                    )
+                                    .clickable {
+                                        val temp = inputBase
+                                        inputBase = outputBase
+                                        outputBase = temp
+
+                                        inputValue = if (inputValue.isNotEmpty()) output ?: "" else ""
+
+                                        focusManager.clearFocus()
+
+                                    }, contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.ic_swap), contentDescription = ""
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.size(5.dp))
+
+                            DialogDecimalPlaces(initialValue = initialDP, onValueChange = {
+                                viewModel.setDecimalPlaces(it)
+                            })
+
+
                         }
+
+                        Spacer(modifier = Modifier.height(5.dp))
+
                     }
 
-                )
+
+                    NCTextField(onBaseSelected = { outputBase = it },
+                        input = if (inputValue.isEmpty()) "" else output ?: "",
+                        base = outputBase,
+                        readOnly = true,
+                        dropHint = "Output",
+                        trailingIcon = {
+                            if (output.toString().isNotEmpty() && inputValue.isNotEmpty()) {
+                                Icon(painterResource(id = R.drawable.ic_copy),
+                                    contentDescription = "",
+                                    Modifier.clickable {
+                                        val clip = ClipData.newPlainText("Copied Text", output)
+                                        clipboardManager.setPrimaryClip(clip)
+                                        Toast.makeText(
+                                            context, "Copied to Clipboard", Toast.LENGTH_SHORT
+                                        ).show()
+
+                                    })
+                            }
+                        }
+
+                    )
+                }
 
 
                 if (inputValue.isNotEmpty()) {
@@ -251,15 +266,33 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(modifier = Modifier.size(10.dp))
 
-                        Text(
-                            text = "Explanation",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontSize = 18.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp),
-                            textAlign = TextAlign.Center
-                        )
+                        Row {
+                            Column (Modifier.weight(1f)) {
+
+                            }
+
+                            Column (Modifier.weight(5f)) {
+                                Text(
+                                    text = "Explanation",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = 18.sp,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
+                            Column (Modifier.weight(1f)) {
+
+                                IconButton(onClick = {
+                                    expanded = !expanded
+                                }) {
+                                    Icon(painterResource(id = icon), contentDescription = "")
+                                }
+
+                            }
+                        }
 
                         HorizontalDivider()
 
