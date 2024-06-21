@@ -5,9 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -122,11 +120,13 @@ class MainActivity : ComponentActivity() {
 
             val baseValue = baseNameToValue(base)
 
-            val validChars = ('0' until '0' + baseValue).joinToString("") +
-                    if (baseValue > 10) ('A' until 'A' + baseValue - 10).joinToString("") else ""
+            val validChars =
+                ('0' until '0' + baseValue).joinToString("") + if (baseValue > 10) ('A' until 'A' + baseValue - 10).joinToString(
+                    ""
+                ) else ""
 
-            return input.uppercase().replace(".", "").all { it in validChars } &&
-                    input.all { it.isDigit() || it in 'A'..'F' || it == '.' }
+            return input.uppercase().replace(".", "")
+                .all { it in validChars } && input.all { it.isDigit() || it in 'A'..'F' || it == '.' }
         }
 
         var expanded by remember {
@@ -138,12 +138,16 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(inputValue, inputBase, outputBase, initialDP) {
 
-            if (validateInput(inputValue,inputBase)){
+            if (validateInput(inputValue, inputBase)) {
                 viewModel.convert(
                     inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase)
                 )
 
-                viewModel.explain(inputValue, baseNameToValue(inputBase), baseNameToValue(outputBase))
+                viewModel.explain(
+                    inputValue,
+                    baseNameToValue(inputBase),
+                    baseNameToValue(outputBase)
+                )
             }
 
         }
@@ -154,11 +158,12 @@ class MainActivity : ComponentActivity() {
 
                 if (!expanded) {
 
-                    Row(Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
 
-                        IconButton(onClick = {  }) {
-                        }
+                        IconButton(onClick = { }) {}
 
                         Column(Modifier.weight(1f)) {
                             Spacer(modifier = Modifier.height(15.dp))
@@ -189,8 +194,11 @@ class MainActivity : ComponentActivity() {
                             startActivity(Intent(context, Settings::class.java))
                         }) {
 
-                            Icon(Icons.Default.Settings, contentDescription ="Settings",
-                                tint = MaterialTheme.colorScheme.secondary)
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.secondary
+                            )
 
                         }
                     }
@@ -468,7 +476,6 @@ class MainActivity : ComponentActivity() {
         }
 
     }
-
 
 
     @Preview(showBackground = true)

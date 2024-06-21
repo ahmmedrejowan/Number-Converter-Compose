@@ -68,11 +68,13 @@ fun NCTextField(
 
         val baseValue = baseNameToValue(base)
 
-        val validChars = ('0' until '0' + baseValue).joinToString("") +
-                if (baseValue > 10) ('A' until 'A' + baseValue - 10).joinToString("") else ""
+        val validChars =
+            ('0' until '0' + baseValue).joinToString("") + if (baseValue > 10) ('A' until 'A' + baseValue - 10).joinToString(
+                ""
+            ) else ""
 
-        return input.uppercase().replace(".", "").all { it in validChars } &&
-                input.all { it.isDigit() || it in 'A'..'Z' || it == '.' }
+        return input.uppercase().replace(".", "")
+            .all { it in validChars } && input.all { it.isDigit() || it in 'A'..'Z' || it == '.' }
     }
 
 
@@ -96,14 +98,14 @@ fun NCTextField(
                     selectedBase = it
                 },
                 interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
-                        LaunchedEffect(interactionSource) {
-                            interactionSource.interactions.collect {
-                                if (it is PressInteraction.Release) {
-                                    mExpanded = !mExpanded
-                                }
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                mExpanded = !mExpanded
                             }
                         }
-                    },
+                    }
+                },
                 label = { Text(dropHint) },
                 trailingIcon = {
                     Icon(icon, "", Modifier.clickable { mExpanded = !mExpanded })
@@ -148,7 +150,13 @@ fun NCTextField(
                 .padding(5.dp)
                 .weight(4f)
                 .focusRequester(focusRequester = focusRequester),
-            label = { Text(text = if (isValid) mLabel else if (isDotError) "Invalid, multiple decimal point (.)" else getErrorMessage(base)) },
+            label = {
+                Text(
+                    text = if (isValid) mLabel else if (isDotError) "Invalid, multiple decimal point (.)" else getErrorMessage(
+                        base
+                    )
+                )
+            },
             isError = !isValid,
             trailingIcon = trailingIcon,
             keyboardOptions = KeyboardOptions(
