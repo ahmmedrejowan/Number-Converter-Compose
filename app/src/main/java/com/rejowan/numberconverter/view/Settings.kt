@@ -30,18 +30,13 @@ class Settings : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             AppTheme {
-
                 ShowSettingScreen()
-
-
             }
         }
     }
 
     @Composable
     private fun ShowSettingScreen() {
-
-        val context = LocalContext.current
 
         Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
 
@@ -83,9 +78,8 @@ class Settings : ComponentActivity() {
 
     @Preview(showBackground = true)
     @Composable
-    fun GreetingPreview() {
+    fun SettingPreview() {
         ShowSettingScreen()
-
     }
 }
 

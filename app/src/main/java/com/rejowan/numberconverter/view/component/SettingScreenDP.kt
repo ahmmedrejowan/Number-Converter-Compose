@@ -36,7 +36,7 @@ import androidx.compose.ui.window.Dialog
 import com.rejowan.numberconverter.R
 
 @Composable
-fun SettingDP(
+fun SettingScreenDP(
     initialValue: Int = 20,
     onValueChange: (Int) -> Unit = {},
     icon: Painter = painterResource(id = R.drawable.ic_swap),
@@ -186,9 +186,6 @@ fun SettingDP(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewSettingDP() {
-
-    SettingDP()
-
-
+fun PreviewSettingScreenDP() {
+    SettingScreenDP()
 }
