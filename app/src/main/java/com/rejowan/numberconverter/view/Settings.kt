@@ -115,7 +115,7 @@ class Settings : ComponentActivity() {
                 )
 
                 SettingOtherScreen(
-                    icon = painterResource(id = R.drawable.ic_copy),
+                    icon = painterResource(id = R.drawable.ic_pref_v_c_s),
                     title = "Source Code",
                     description = "See source code on Github",
                     onItemClicked = {
