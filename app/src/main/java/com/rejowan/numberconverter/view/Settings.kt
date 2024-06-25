@@ -1,5 +1,7 @@
 package com.rejowan.numberconverter.view
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rejowan.numberconverter.R
+import com.rejowan.numberconverter.constants.Constants
 import com.rejowan.numberconverter.di.converterModule
 import com.rejowan.numberconverter.ui.theme.AppTheme
 import com.rejowan.numberconverter.view.component.SettingOtherScreen
@@ -89,92 +92,118 @@ class Settings : ComponentActivity() {
 
                 Spacer(modifier = Modifier.size(5.dp))
 
-                Text(text = "General",
-                    modifier = Modifier.padding(10.dp,0.dp),
-                    color = MaterialTheme.colorScheme.primary)
+                Text(
+                    text = "General",
+                    modifier = Modifier.padding(10.dp, 0.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 SettingScreenDP(initialValue = initialDP, onValueChange = {
                     viewModel.setDecimalPlaces(it)
                 })
 
-                Text(text = "About",
-                    modifier = Modifier.padding(10.dp,0.dp),
-                    color = MaterialTheme.colorScheme.primary)
-
-                SettingOtherScreen(
-                    icon = {
-                        Icon(Icons.Outlined.Info,
-                            contentDescription ="",
-                            modifier = Modifier.padding(10.dp).size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    },
-                    title = "App Version",
-                    description = "Version 1.0"
+                Text(
+                    text = "About",
+                    modifier = Modifier.padding(10.dp, 0.dp),
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 SettingOtherScreen(
                     icon = {
-                        Icon(Icons.Outlined.Email,
-                            contentDescription ="",
-                            modifier = Modifier.padding(10.dp).size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    },
+                        Icon(
+                            Icons.Outlined.Info,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }, title = "App Version", description = "Version 1.0"
+                )
+
+                SettingOtherScreen(icon = {
+                    Icon(
+                        Icons.Outlined.Email,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
                     title = "Contact Us",
                     description = "Share your thoughts and comments",
                     onItemClicked = {
+                        sendEmail()
 
-                    }
-                )
+                    })
 
-                SettingOtherScreen(
-                    icon = {
-                        Icon(
-                            painterResource(id = R.drawable.ic_pref_v_c_s),
-                            contentDescription ="",
-                            modifier = Modifier.padding(10.dp).size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    },                    title = "Source Code",
+                SettingOtherScreen(icon = {
+                    Icon(
+                        painterResource(id = R.drawable.ic_pref_v_c_s),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                    title = "Source Code",
                     description = "See source code on Github",
                     onItemClicked = {
+                        val browserIntent = Intent(
+                            Intent.ACTION_VIEW, Uri.parse(Constants.sourceCode)
+                        )
+                        startActivity(browserIntent)
+                    })
 
-                    }
+                SettingOtherScreen(icon = {
+                    Icon(
+                        painterResource(id = R.drawable.outline_copyright_24),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }, title = "License", description = "Apache 2.0", onItemClicked = {
+                    val browserIntent = Intent(
+                        Intent.ACTION_VIEW, Uri.parse(Constants.license)
+                    )
+                    startActivity(browserIntent)
+                })
+
+
+                SettingOtherScreen(icon = {
+                    Icon(
+                        painterResource(id = R.drawable.ic_pref_creator),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }, title = "Created by", description = "K M Rejowan Ahmmed", onItemClicked = {
+                    val browserIntent = Intent(
+                        Intent.ACTION_VIEW, Uri.parse(Constants.portfolio)
+                    )
+                    startActivity(browserIntent)
+                }
+
                 )
-
-                SettingOtherScreen(
-                    icon = {
-                        Icon(
-                            painterResource(id = R.drawable.outline_copyright_24),
-                            contentDescription ="",
-                            modifier = Modifier.padding(10.dp).size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    },                    title = "License",
-                    description = "Apache 2.0",
-                    onItemClicked = {
-
-                    }
-                )
-
-
-                SettingOtherScreen(
-                    icon = {
-                        Icon(
-                            painterResource(id = R.drawable.ic_pref_creator),
-                            contentDescription ="",
-                            modifier = Modifier.padding(10.dp).size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary)
-                    },                    title = "Created by",
-                    description = "K M Rejowan Ahmmed",
-                    onItemClicked = {
-
-                    }
-
-                )
-
 
 
             }
         }
 
+    }
+
+    private fun sendEmail() {
+        val email = Intent(Intent.ACTION_SEND)
+        email.putExtra(Intent.EXTRA_EMAIL, arrayOf(Constants.contactEmail))
+        email.putExtra(Intent.EXTRA_SUBJECT, "Feedback about Number Converter")
+        email.type = "message/rfc822"
+        startActivity(Intent.createChooser(email, "Choose an Email client :"))
     }
 
 
