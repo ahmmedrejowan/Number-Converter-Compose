@@ -33,6 +33,22 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
         val DECIMAL_PLACES_KEY = intPreferencesKey("decimal_places")
     }
 
+    override suspend fun setDecimalPlaces(decimalPlaces: Int) {
+        Log.e("decimalPlaces", decimalPlaces.toString())
+        dataStore.edit { settings ->
+            settings[DECIMAL_PLACES_KEY] = decimalPlaces
+        }
+    }
+
+    override suspend fun getDecimalPlaces(): Int {
+        val decimalPlacesFlow: Flow<Int> = dataStore.data.map { preferences ->
+            preferences[DECIMAL_PLACES_KEY] ?: 15
+        }
+
+        Log.e("decimalPlacesFlow", decimalPlacesFlow.first().toString())
+        return decimalPlacesFlow.first()
+    }
+
     override suspend fun convert(input: String, fromBase: Int, toBase: Int): String? {
         return try {
             val parsedValue = toBaseTen(input, fromBase)
@@ -995,21 +1011,7 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
     }
 
 
-    override suspend fun setDecimalPlaces(decimalPlaces: Int) {
-        Log.e("decimalPlaces", decimalPlaces.toString())
-        dataStore.edit { settings ->
-            settings[DECIMAL_PLACES_KEY] = decimalPlaces
-        }
-    }
 
-    override suspend fun getDecimalPlaces(): Int {
-        val decimalPlacesFlow: Flow<Int> = dataStore.data.map { preferences ->
-            preferences[DECIMAL_PLACES_KEY] ?: 15
-        }
-
-        Log.e("decimalPlacesFlow", decimalPlacesFlow.first().toString())
-        return decimalPlacesFlow.first()
-    }
 
     private fun toBaseTen(input: String, fromBase: Int): Pair<BigInteger, BigDecimal?> {
         val parts = input.uppercase().split(".")

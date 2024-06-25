@@ -24,7 +24,12 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
             _decimalPlaces.value = repository.getDecimalPlaces()
         }
     }
-
+    fun setDecimalPlaces(decimalPlaces: Int) {
+        viewModelScope.launch {
+            repository.setDecimalPlaces(decimalPlaces)
+            _decimalPlaces.value = decimalPlaces
+        }
+    }
     fun convert(input: String, fromBase: Int, toBase: Int) {
         viewModelScope.launch {
             _output.value = repository.convert(input, fromBase, toBase)
@@ -39,11 +44,12 @@ class ConverterViewModel(private val repository: ConverterRepository) : ViewMode
         }
     }
 
-    fun setDecimalPlaces(decimalPlaces: Int) {
+    fun getDecimalPlaces() {
         viewModelScope.launch {
-            repository.setDecimalPlaces(decimalPlaces)
-            _decimalPlaces.value = decimalPlaces
+            _decimalPlaces.value = repository.getDecimalPlaces()
         }
     }
+
+
 
 }

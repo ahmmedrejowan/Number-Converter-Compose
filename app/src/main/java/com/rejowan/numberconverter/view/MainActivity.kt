@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +49,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -57,6 +60,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import com.rejowan.numberconverter.R
 import com.rejowan.numberconverter.di.converterModule
 import com.rejowan.numberconverter.ui.theme.AppTheme
@@ -111,6 +115,18 @@ class MainActivity : ComponentActivity() {
 
         val initialDP by viewModel.decimalPlaces.observeAsState(initial = 20)
 
+        val lifecycleOwner = LocalLifecycleOwner.current
+        val state by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
+
+        LaunchedEffect(state) {
+
+            if (state == Lifecycle.State.RESUMED) {
+                viewModel.getDecimalPlaces()
+            }
+            
+        }
+
+
         val explanation by viewModel.explanation.observeAsState()
 
         fun validateInput(input: String, base: String): Boolean {
@@ -137,6 +153,9 @@ class MainActivity : ComponentActivity() {
             if (expanded) R.drawable.collapse_content_24px else R.drawable.expand_content_24px
 
         LaunchedEffect(inputValue, inputBase, outputBase, initialDP) {
+
+            Log.e("DP2", initialDP.toString())
+
 
             if (validateInput(inputValue, inputBase)) {
                 viewModel.convert(
