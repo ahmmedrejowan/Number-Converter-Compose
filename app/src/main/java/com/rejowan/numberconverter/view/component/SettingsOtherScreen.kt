@@ -22,7 +22,14 @@ import com.rejowan.numberconverter.R
 
 @Composable
 fun SettingOtherScreen(
-    icon: Painter = painterResource(id = R.drawable.ic_swap),
+    icon: @Composable () -> Unit = {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_swap),
+            contentDescription = "Default Icon",
+            tint = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(10.dp).size(24.dp)
+        )
+    },
     title: String = "Info Title",
     description: String = "Info Description",
     onItemClicked: () -> Unit = {}
@@ -39,9 +46,7 @@ fun SettingOtherScreen(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        Icon(
-            icon, contentDescription = "DP", modifier = Modifier.padding(10.dp)
-        )
+        icon()
 
         Spacer(modifier = Modifier.size(5.dp))
 

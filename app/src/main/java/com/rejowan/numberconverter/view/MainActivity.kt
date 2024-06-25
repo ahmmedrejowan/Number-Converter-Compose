@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
         }
 
         val icon =
-            if (expanded) R.drawable.collapse_content_24px else R.drawable.expand_content_24px
+            if (expanded) R.drawable.ic_collapse else R.drawable.ic_expand
 
         LaunchedEffect(inputValue, inputBase, outputBase, initialDP) {
 

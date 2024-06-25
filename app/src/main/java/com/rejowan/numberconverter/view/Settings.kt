@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -100,13 +102,23 @@ class Settings : ComponentActivity() {
                     color = MaterialTheme.colorScheme.primary)
 
                 SettingOtherScreen(
-                    icon = painterResource(id = R.drawable.ic_copy),
+                    icon = {
+                        Icon(Icons.Outlined.Info,
+                            contentDescription ="",
+                            modifier = Modifier.padding(10.dp).size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary)
+                    },
                     title = "App Version",
                     description = "Version 1.0"
                 )
 
                 SettingOtherScreen(
-                    icon = painterResource(id = R.drawable.ic_copy),
+                    icon = {
+                        Icon(Icons.Outlined.Email,
+                            contentDescription ="",
+                            modifier = Modifier.padding(10.dp).size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary)
+                    },
                     title = "Contact Us",
                     description = "Share your thoughts and comments",
                     onItemClicked = {
@@ -115,8 +127,13 @@ class Settings : ComponentActivity() {
                 )
 
                 SettingOtherScreen(
-                    icon = painterResource(id = R.drawable.ic_pref_v_c_s),
-                    title = "Source Code",
+                    icon = {
+                        Icon(
+                            painterResource(id = R.drawable.ic_pref_v_c_s),
+                            contentDescription ="",
+                            modifier = Modifier.padding(10.dp).size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary)
+                    },                    title = "Source Code",
                     description = "See source code on Github",
                     onItemClicked = {
 
@@ -124,8 +141,13 @@ class Settings : ComponentActivity() {
                 )
 
                 SettingOtherScreen(
-                    icon = painterResource(id = R.drawable.ic_copy),
-                    title = "License",
+                    icon = {
+                        Icon(
+                            painterResource(id = R.drawable.outline_copyright_24),
+                            contentDescription ="",
+                            modifier = Modifier.padding(10.dp).size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary)
+                    },                    title = "License",
                     description = "Apache 2.0",
                     onItemClicked = {
 
@@ -134,8 +156,13 @@ class Settings : ComponentActivity() {
 
 
                 SettingOtherScreen(
-                    icon = painterResource(id = R.drawable.ic_copy),
-                    title = "Created by",
+                    icon = {
+                        Icon(
+                            painterResource(id = R.drawable.ic_pref_creator),
+                            contentDescription ="",
+                            modifier = Modifier.padding(10.dp).size(24.dp),
+                            tint = MaterialTheme.colorScheme.primary)
+                    },                    title = "Created by",
                     description = "K M Rejowan Ahmmed",
                     onItemClicked = {
 

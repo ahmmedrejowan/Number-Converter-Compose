@@ -41,9 +41,6 @@ import com.rejowan.numberconverter.R
 fun SettingScreenDP(
     initialValue: Int = 20,
     onValueChange: (Int) -> Unit = {},
-    icon: Painter = painterResource(id = R.drawable.ic_swap),
-    title: String = "Decimal Places",
-    description: String = "Result decimal place limit"
 ) {
 
     var value by remember { mutableFloatStateOf(initialValue.toFloat()) }
@@ -56,12 +53,14 @@ fun SettingScreenDP(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
+            .height(60.dp)
+            .clickable { expanded = !expanded },
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         Icon(
-            icon, contentDescription = "DP", modifier = Modifier.padding(10.dp)
+            painterResource(id = R.drawable.ic_swap), contentDescription = "DP", modifier = Modifier.padding(10.dp),
+            tint = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.size(5.dp))
@@ -69,13 +68,13 @@ fun SettingScreenDP(
         Column(modifier = Modifier.weight(1f)) {
             Spacer(modifier = Modifier.size(5.dp))
             Text(
-                text = title,
+                text = "Decimal Places",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.size(5.dp))
             Text(
-                text = description,
+                text = "Limit of decimal places in the result",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -90,7 +89,7 @@ fun SettingScreenDP(
                 .border(1.dp, MaterialTheme.colorScheme.onSurfaceVariant, RoundedCornerShape(10.dp))
                 .padding(10.dp)
                 .width(50.dp)
-                .clickable { expanded = !expanded },
+               ,
             contentAlignment = Alignment.Center
         ) {
 
