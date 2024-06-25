@@ -94,7 +94,7 @@ class Settings : ComponentActivity() {
 
                 Text(
                     text = "General",
-                    modifier = Modifier.padding(10.dp, 0.dp),
+                    modifier = Modifier.padding(20.dp, 0.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
 
@@ -104,7 +104,7 @@ class Settings : ComponentActivity() {
 
                 Text(
                     text = "About",
-                    modifier = Modifier.padding(10.dp, 0.dp),
+                    modifier = Modifier.padding(20.dp, 0.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
 
