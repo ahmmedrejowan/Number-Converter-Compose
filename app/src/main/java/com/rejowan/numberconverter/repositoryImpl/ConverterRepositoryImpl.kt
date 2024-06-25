@@ -34,7 +34,6 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
     }
 
     override suspend fun setDecimalPlaces(decimalPlaces: Int) {
-        Log.e("decimalPlaces", decimalPlaces.toString())
         dataStore.edit { settings ->
             settings[DECIMAL_PLACES_KEY] = decimalPlaces
         }
@@ -45,7 +44,6 @@ class ConverterRepositoryImpl(context: Context) : ConverterRepository {
             preferences[DECIMAL_PLACES_KEY] ?: 15
         }
 
-        Log.e("decimalPlacesFlow", decimalPlacesFlow.first().toString())
         return decimalPlacesFlow.first()
     }
 

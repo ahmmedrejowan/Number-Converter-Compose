@@ -5,9 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.HorizontalDivider
@@ -22,11 +24,14 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rejowan.numberconverter.R
 import com.rejowan.numberconverter.di.converterModule
 import com.rejowan.numberconverter.ui.theme.AppTheme
+import com.rejowan.numberconverter.view.component.SettingOtherScreen
 import com.rejowan.numberconverter.view.component.SettingScreenDP
 import com.rejowan.numberconverter.viewmodel.ConverterViewModel
 import org.koin.android.ext.koin.androidContext
@@ -80,9 +85,64 @@ class Settings : ComponentActivity() {
                     thickness = 0.5.dp
                 )
 
+                Spacer(modifier = Modifier.size(5.dp))
+
+                Text(text = "General",
+                    modifier = Modifier.padding(10.dp,0.dp),
+                    color = MaterialTheme.colorScheme.primary)
+
                 SettingScreenDP(initialValue = initialDP, onValueChange = {
                     viewModel.setDecimalPlaces(it)
                 })
+
+                Text(text = "About",
+                    modifier = Modifier.padding(10.dp,0.dp),
+                    color = MaterialTheme.colorScheme.primary)
+
+                SettingOtherScreen(
+                    icon = painterResource(id = R.drawable.ic_copy),
+                    title = "App Version",
+                    description = "Version 1.0"
+                )
+
+                SettingOtherScreen(
+                    icon = painterResource(id = R.drawable.ic_copy),
+                    title = "Contact Us",
+                    description = "Share your thoughts and comments",
+                    onItemClicked = {
+
+                    }
+                )
+
+                SettingOtherScreen(
+                    icon = painterResource(id = R.drawable.ic_copy),
+                    title = "Source Code",
+                    description = "See source code on Github",
+                    onItemClicked = {
+
+                    }
+                )
+
+                SettingOtherScreen(
+                    icon = painterResource(id = R.drawable.ic_copy),
+                    title = "License",
+                    description = "Apache 2.0",
+                    onItemClicked = {
+
+                    }
+                )
+
+
+                SettingOtherScreen(
+                    icon = painterResource(id = R.drawable.ic_copy),
+                    title = "Created by",
+                    description = "K M Rejowan Ahmmed",
+                    onItemClicked = {
+
+                    }
+
+                )
+
 
 
             }
