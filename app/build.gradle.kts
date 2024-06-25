@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation (libs.androidx.datastore.preferences)
+    implementation(libs.androidx.core.splashscreen)
 
 
 
